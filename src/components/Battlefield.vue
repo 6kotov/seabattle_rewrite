@@ -3,7 +3,8 @@
 <Row @mouse_ship_draw="mouse_ship_mark" :battlefield="battlefield" :colindex="column" v-for="column in columns"
      :key="column.id "/>
     <TextInput @position="shipmark" />
-      <button @click="ship_draw" >Draw</button>
+      <button @click="ship_draw" >-Draw-</button>
+      <button @click="random_shot" >-Shot-</button>
   </div>
 </template>
 
@@ -18,11 +19,13 @@
             Row,
             TextInput
         },
+        props:['ship_field', 'ship_field2'],
         data: function () {
             return {
                 columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                 battlefield: this.battlefieldmatrix(),
-                ship_map: [ ]
+                ship_map: [],
+                shot_map: []
             }
         },
         methods: {
@@ -89,9 +92,13 @@
                 return coordinates
             },
             mouse_ship_mark: function (x, y, shipsize, orient) {
-               if ( this.cell_validate(x, y, shipsize, orient) ) {
+                if (this.cell_validate(x, y, shipsize, orient)) {
                     this.cellmark(x, y, "ship", true)
-               }else { alert("inaccessible coordinates")}
+                    console.log(this.ship_field , this.ship_field2)
+                } else {
+                    alert("inaccessible coordinates")
+                    console.log(this.ship_field , this.ship_field2)
+                }
             },
             cellmark: function (x, y, name, condition) {
                 Vue.set(this.battlefield[x][y], name, condition);
@@ -139,14 +146,42 @@
                 let ships_count = 5
                 let ships_size = 5
                 for (let i = 1; i < ships_count; i++) {
-                    ships_size -=1
+                    ships_size -= 1
                     for (let j = 0; j < i; j++) {
                         let result = this.randomshipdraw(ships_size)
                         this.ship_map.push(Ship.ShipsX(ships_size, this, result))
-                        console.log(result)
                     }
                 }
-                console.log( this.ship_map)
+                console.log(this.ship_map)
+                this.$emit('enemy_shipfield', this.ship_map)
+                this.$emit('enemy_shipfield2', this.ship_map)
+
+            },
+            random_shot: function () {
+                let done = false;
+                while (!done) {
+                      let  x = this.get_random(9),
+                       y = this.get_random(9),
+                       cell =  this.battlefield[x][y];
+
+                    if (this.shot_validate(x, y)) {
+                        if (cell.ship) {
+                            cell.hit = true
+                            alert("Hit!!!")
+
+                        } else {
+                            alert("MISS")
+                        }
+                        this.shot_map.push([x,y])
+                        done = true;
+                    }
+                }
+            },
+            shot_validate: function (x,y) {
+                let length = this.shot_map.length;
+                for (let i=0; i < length; i++ ) {
+                    return [x, y] !== this.shot_map[i];
+                }
             }
         }
     }

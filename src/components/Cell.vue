@@ -1,7 +1,7 @@
 <template>
-  <div class="ship" v-if="isship" >{{colindex}}{{rowindex}}</div>
-  <div class="hit" v-else-if="ishit" >{{colindex}}{{rowindex}}</div>
-  <div class="disabled" v-else-if="isdisabled" >{{colindex}}{{rowindex}}</div>
+  <div v-on:click="ship_mark_emit" class="ship" v-if="isship" >{{colindex}}{{rowindex}}</div>
+  <div v-on:click="ship_mark_emit" class="hit" v-else-if="ishit" >{{colindex}}{{rowindex}}</div>
+  <div v-on:click="ship_mark_emit" class="disabled" v-else-if="isdisabled" >{{colindex}}{{rowindex}}</div>
   <div v-on:click="ship_mark_emit" v-else>{{colindex}}{{rowindex}}</div>
 </template>
 
@@ -11,7 +11,8 @@ export default {
 props:["rowindex","colindex","battlefield"],
   data: function () {
     return {
-      xy: [this.colindex, this.rowindex]
+      x: this.colindex,
+      y: this.rowindex
     }
   },
   computed:{
@@ -28,12 +29,12 @@ props:["rowindex","colindex","battlefield"],
   methods:{
     ship_mark_emit: function () {
 
-     let x = this.xy[0] ,
-         y = this.xy[1];
+     let x = this.x ,
+         y = this.y;
 
       this.$emit('xy_position', x , y);
      }
-  }
+  },
 }
 </script>
 
@@ -42,13 +43,13 @@ props:["rowindex","colindex","battlefield"],
   div {
     font-size:14px;
     background-color: rgba(93, 255, 253, 0.21);
-    color: rgba(1, 0, 55, 0);
+    color: rgba(1, 0, 55, 0.66);
     border: 1px solid black;
     display:inline-block;
     position:relative;
     padding:2px;
-    width:50px;
-    height: 50px;
+    width:40px;
+    height: 40px;
   }
   .hit  {
     background-color: #ff0000;
@@ -56,13 +57,13 @@ props:["rowindex","colindex","battlefield"],
     border: 1px solid black;
   }
   .ship  {
-    background-color: #ff0a02;
-    color: rgba(6, 0, 107, 0);
-    border: 1px solid #9d9d99;
+    background-color: #315358;
+    color: rgba(211, 228, 255, 0.85);
+    border: 1px solid #00ff00;
   }
   .disabled  {
-    background-color: rgba(47, 83, 126, 0.11);
+    background-color: rgba(93, 255, 253, 0.2);
     color: rgba(93, 255, 253, 0);
-    border: 1px solid rgba(253, 255, 6, 0.35);
+    border: 1px solid rgb(0, 0, 0);
   }
 </style>

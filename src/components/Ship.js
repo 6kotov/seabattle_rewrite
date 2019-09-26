@@ -5,6 +5,7 @@ export default {
                     size: size,
                     positions: result,
                     damage: [],
+                    loss: false
                     }
 
                 }
