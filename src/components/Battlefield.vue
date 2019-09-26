@@ -4,7 +4,7 @@
      :key="column.id "/>
     <TextInput @position="shipmark" />
       <button @click="ship_draw" >-Draw-</button>
-      <button @click="random_shot" >-Shot-</button>
+
   </div>
 </template>
 
@@ -19,7 +19,7 @@
             Row,
             TextInput
         },
-        props:['ship_field', 'ship_field2'],
+        props:['ship_field', 'ship_field_cpu', 'battlearea_cpu', 'battlearea'],
         data: function () {
             return {
                 columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -40,7 +40,8 @@
                         battlearray[i][j] = {
                             ship: false,
                             hit: false,
-                            disabled: false
+                            disabled: false,
+                            miss: false
                         }
                     }
                 }
@@ -145,6 +146,8 @@
             ship_draw: function () {
                 let ships_count = 5
                 let ships_size = 5
+
+                this.battlefield =  this.battlefieldmatrix();
                 for (let i = 1; i < ships_count; i++) {
                     ships_size -= 1
                     for (let j = 0; j < i; j++) {
@@ -153,8 +156,10 @@
                     }
                 }
                 console.log(this.ship_map)
-                this.$emit('enemy_shipfield', this.ship_map)
-                this.$emit('enemy_shipfield2', this.ship_map)
+                this.$emit('enemy_shipfield', this.ship_map )
+                this.$emit('enemy_shipfield_cpu', this.ship_map )
+                this.$emit('battlefield_cpu',  this.battlefield)
+                this.$emit('battlefield', this.battlefield)
 
             },
             random_shot: function () {
@@ -162,27 +167,61 @@
                 while (!done) {
                       let  x = this.get_random(9),
                        y = this.get_random(9),
-                       cell =  this.battlefield[x][y];
+                       cell =  this.battlearea[x][y];
 
                     if (this.shot_validate(x, y)) {
                         if (cell.ship) {
                             cell.hit = true
+                            cell.ship = false
+                             alert("Hit!!!")
+
+                        } else {
+                            cell.disabled = false
+                            cell.miss = true
+                             alert("Miss...")
+                        }
+                        this.shot_map.push([x,y])
+                        console.log(this.shot_map[this.shot_map.length-1] , [x,y] , this.shot_map.length)
+                        done = true;
+
+                    }
+                }
+            },
+            random_shot_cpu: function () {
+                let done = false;
+                while (!done) {
+                    let  x = this.get_random(9),
+                        y = this.get_random(9),
+                        cell = this.battlearea_cpu[x][y];
+
+                    if (this.shot_validate(x, y)) {
+                        if (cell.ship) {
+                            cell.hit = true
+                            cell.ship = false
                             alert("Hit!!!")
 
                         } else {
-                            alert("MISS")
+                            cell.disabled = false
+                            cell.miss = true
+                            alert("Miss...")
                         }
                         this.shot_map.push([x,y])
+                        console.log(this.shot_map[this.shot_map.length-1] , [x,y] , this.shot_map.length)
                         done = true;
+
                     }
                 }
             },
             shot_validate: function (x,y) {
                 let length = this.shot_map.length;
                 for (let i=0; i < length; i++ ) {
-                    return [x, y] !== this.shot_map[i];
+                    if ([x, y] === this.shot_map[i]){
+                        return false
+                    }
                 }
+                return true
             }
+
         }
     }
 

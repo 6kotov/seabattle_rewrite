@@ -1,10 +1,16 @@
 <template>
   <div  class="background">
+
     <div class="app">
-     <b>-- Player 1 --</b>  <Battlefield @enemy_shipfield2="fieldemit2" :ship_field="ship_field" />
+     <b>-- Player 1 --</b>  <Battlefield ref="battle" @battlefield_cpu="battlefield_cpu" @enemy_shipfield_cpu="fieldemit_cpu"
+                                         :ship_field="ship_field" :battlearea="battlearea" />
+      <button @click="$refs.battle.random_shot()" >-Shot-</button>
+
     </div>
     <div class="app">
-      <b>-- Player2 --</b> <Battlefield @enemy_shipfield="fieldemit" :ship_field2="ship_field2" />
+      <b>-- Player2 --</b> <Battlefield ref="battle_cpu" @battlefield="battlefield" @enemy_shipfield="fieldemit"
+                                        :ship_field_cpu="ship_field_cpu" :battlearea_cpu="battlearea_cpu"/>
+      <button @click="$refs.battle_cpu.random_shot_cpu()" >-Shot-</button>
   </div>
 
   </div>
@@ -19,15 +25,23 @@ export default {
   data: function(){
     return {
       ship_field:"",
-      ship_field2:""
+      ship_field_cpu:"",
+      battlearea:"",
+      battlearea_cpu:""
     }
   },
   methods: {
     fieldemit: function (event) {
       this.ship_field = event
     },
-    fieldemit2: function (event) {
-      this.ship_field2 = event
+    fieldemit_cpu: function (event) {
+      this.ship_field_cpu = event
+    },
+    battlefield: function (event) {
+      this.battlearea = event
+    },
+    battlefield_cpu: function (event) {
+      this.battlearea_cpu = event
     }
   }
 }

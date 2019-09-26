@@ -1,6 +1,7 @@
 <template>
   <div v-on:click="ship_mark_emit" class="ship" v-if="isship" >{{colindex}}{{rowindex}}</div>
   <div v-on:click="ship_mark_emit" class="hit" v-else-if="ishit" >{{colindex}}{{rowindex}}</div>
+  <div v-on:click="ship_mark_emit" class="miss" v-else-if="ismiss" >{{colindex}}{{rowindex}}</div>
   <div v-on:click="ship_mark_emit" class="disabled" v-else-if="isdisabled" >{{colindex}}{{rowindex}}</div>
   <div v-on:click="ship_mark_emit" v-else>{{colindex}}{{rowindex}}</div>
 </template>
@@ -24,6 +25,9 @@ props:["rowindex","colindex","battlefield"],
     },
     isdisabled: function () {
       return this.battlefield[this.colindex][this.rowindex].disabled
+    },
+    ismiss: function () {
+      return this.battlefield[this.colindex][this.rowindex].miss
     }
   },
   methods:{
@@ -63,6 +67,11 @@ props:["rowindex","colindex","battlefield"],
   }
   .disabled  {
     background-color: rgba(93, 255, 253, 0.2);
+    color: rgba(93, 255, 253, 0);
+    border: 1px solid rgb(0, 0, 0);
+  }
+  .miss  {
+    background-color: rgb(157, 117, 0);
     color: rgba(93, 255, 253, 0);
     border: 1px solid rgb(0, 0, 0);
   }
