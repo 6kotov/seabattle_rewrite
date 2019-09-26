@@ -51,37 +51,18 @@ props:["rowindex","colindex","battlefield"],
     height: 50px;
   }
   .hit  {
-    font-size:14px;
     background-color: #ff0000;
     color: #0009a9;
     border: 1px solid black;
-    display:inline-block;
-    position:relative;
-    padding:2px;
-    width:50px;
-    height: 50px;
   }
   .ship  {
-    /*background-image: url('images/ship.png');*/
-    font-size:14px;
     background-color: #ff0a02;
     color: rgba(6, 0, 107, 0);
     border: 1px solid #9d9d99;
-    display:inline-block;
-    position:relative;
-    padding:2px;
-    width:50px;
-    height: 50px;
   }
   .disabled  {
-    font-size:14px;
     background-color: rgba(47, 83, 126, 0.11);
-    color: rgba(93, 255, 253, 0.11);
+    color: rgba(93, 255, 253, 0);
     border: 1px solid rgba(253, 255, 6, 0.35);
-    display:inline-block;
-    position:relative;
-    padding:2px;
-    width:50px;
-    height: 50px;
   }
 </style>
