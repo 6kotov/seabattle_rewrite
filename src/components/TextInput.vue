@@ -1,6 +1,6 @@
 <template>
   <div>
-    <input type="text" @input="TextValidation"  v-model="coordinates" placeholder="Type your shoot">
+    <input type="text" @input="TextValidation"  v-model="coordinates" placeholder="place your ship">
   </div>
 </template>
 

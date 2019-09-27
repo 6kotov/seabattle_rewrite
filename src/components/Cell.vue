@@ -47,7 +47,7 @@ props:["rowindex","colindex","battlefield"],
   div {
     font-size:14px;
     background-color: rgba(93, 255, 253, 0.21);
-    color: rgba(1, 0, 55, 0.66);
+    color: rgba(1, 0, 55, 0);
     border: 1px solid black;
     display:inline-block;
     position:relative;
@@ -57,13 +57,13 @@ props:["rowindex","colindex","battlefield"],
   }
   .hit  {
     background-color: #ff0000;
-    color: #0009a9;
+    color: rgba(0, 9, 169, 0);
     border: 1px solid black;
   }
   .ship  {
     background-color: #315358;
-    color: rgba(211, 228, 255, 0.85);
-    border: 1px solid #00ff00;
+    color: rgba(211, 228, 255, 0);
+    border: 1px solid #e58700;
   }
   .disabled  {
     background-color: rgba(93, 255, 253, 0.2);

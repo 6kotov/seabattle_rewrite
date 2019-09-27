@@ -95,10 +95,8 @@
             mouse_ship_mark: function (x, y, shipsize, orient) {
                 if (this.cell_validate(x, y, shipsize, orient)) {
                     this.cellmark(x, y, "ship", true)
-                    console.log(this.ship_field , this.ship_field2)
                 } else {
                     alert("inaccessible coordinates")
-                    console.log(this.ship_field , this.ship_field2)
                 }
             },
             cellmark: function (x, y, name, condition) {
@@ -155,7 +153,6 @@
                         this.ship_map.push(Ship.ShipsX(ships_size, this, result))
                     }
                 }
-                console.log(this.ship_map)
                 this.$emit('enemy_shipfield', this.ship_map )
                 this.$emit('enemy_shipfield_cpu', this.ship_map )
                 this.$emit('battlefield_cpu',  this.battlefield)
@@ -167,21 +164,34 @@
                 while (!done) {
                       let  x = this.get_random(9),
                        y = this.get_random(9),
-                       cell =  this.battlearea[x][y];
+                       cell =  this.battlearea[x][y],
+                       length = this.ship_field.length;
 
                     if (this.shot_validate(x, y)) {
                         if (cell.ship) {
+
+                            for (let i = 0; i < length; i++) {
+                              let pos = this.ship_field[i]
+
+                                for (let j = 0; j < pos.positions.length; j++ ){
+                                    if ( x === this.ship_field[i].positions[j][0] &&
+                                         y === this.ship_field[i].positions[j][1]) {
+                                        this.ship_field[i].damage.push([x, y])
+                                    }
+                                }
+                                if ( pos.positions.length === pos.damage.length ) {
+                                    pos.loss = true
+                                }
+                            }
                             cell.hit = true
                             cell.ship = false
-                             alert("Hit!!!")
-
+                            alert("Hit!!!")
                         } else {
                             cell.disabled = false
                             cell.miss = true
                              alert("Miss...")
                         }
                         this.shot_map.push([x,y])
-                        console.log(this.shot_map[this.shot_map.length-1] , [x,y] , this.shot_map.length)
                         done = true;
 
                     }
@@ -192,10 +202,25 @@
                 while (!done) {
                     let  x = this.get_random(9),
                         y = this.get_random(9),
-                        cell = this.battlearea_cpu[x][y];
+                        cell = this.battlearea_cpu[x][y],
+                    length = this.ship_field_cpu.length;
 
                     if (this.shot_validate(x, y)) {
                         if (cell.ship) {
+
+                            for (let i = 0; i < length; i++) {
+                                let pos = this.ship_field_cpu[i]
+
+                                for (let j = 0; j < pos.positions.length; j++ ){
+                                    if ( x === this.ship_field_cpu[i].positions[j][0] &&
+                                        y === this.ship_field_cpu[i].positions[j][1]) {
+                                        this.ship_field_cpu[i].damage.push([x, y])
+                                    }
+                                }
+                                if ( pos.positions.length === pos.damage.length ) {
+                                    pos.loss = true
+                                }
+                            }
                             cell.hit = true
                             cell.ship = false
                             alert("Hit!!!")
@@ -206,7 +231,6 @@
                             alert("Miss...")
                         }
                         this.shot_map.push([x,y])
-                        console.log(this.shot_map[this.shot_map.length-1] , [x,y] , this.shot_map.length)
                         done = true;
 
                     }
@@ -215,7 +239,8 @@
             shot_validate: function (x,y) {
                 let length = this.shot_map.length;
                 for (let i=0; i < length; i++ ) {
-                    if ([x, y] === this.shot_map[i]){
+                    if (x === this.shot_map[i][0] &&
+                        y === this.shot_map[i][1]){
                         return false
                     }
                 }

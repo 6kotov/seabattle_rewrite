@@ -8,7 +8,7 @@
 
     </div>
     <div class="app">
-      <b>-- Player2 --</b> <Battlefield ref="battle_cpu" @battlefield="battlefield" @enemy_shipfield="fieldemit"
+      <b>-- Compukter --</b> <Battlefield ref="battle_cpu" @battlefield="battlefield" @enemy_shipfield="fieldemit"
                                         :ship_field_cpu="ship_field_cpu" :battlearea_cpu="battlearea_cpu"/>
       <button @click="$refs.battle_cpu.random_shot_cpu()" >-Shot-</button>
   </div>
@@ -50,11 +50,11 @@ export default {
 <style>
   button {
     margin: 3px;
-    font-family: Bankir-Retro,sans-serif;
+    font-family: CricketLight,monospace;
     font-size:20px;
   }
   b {
-    font-family: Bankir-Retro,sans-serif;
+    font-family: CricketLight,monospace;
    font-size:20px;
     color: #fff602;
     border: solid #060606;

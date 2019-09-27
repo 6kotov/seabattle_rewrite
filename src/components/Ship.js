@@ -8,8 +8,14 @@ export default {
                     loss: false
                     }
 
-                }
+                },
+        // computed: {
+        //     isloss: function () {
+        //         return damage.length === positions.length
+        //     }
+        //
+        //
+        // }
 
-        }
 
-
+    }
