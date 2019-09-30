@@ -3,7 +3,7 @@
 <Row @mouse_ship_draw="mouse_ship_mark" :battlefield="battlefield" :colindex="column" v-for="column in columns"
      :key="column.id "/>
     <TextInput @position="shipmark" />
-      <button @click="ship_draw" >-Draw-</button>
+      <button v-if="context.game_status.ship_placing" @click="ship_draw" >-Draw-</button>
 
   </div>
 </template>
@@ -19,7 +19,7 @@
             Row,
             TextInput
         },
-        props:['ship_field', 'ship_field_cpu', 'battlearea_cpu', 'battlearea'],
+        props:['ship_field', 'ship_field_cpu', 'battlearea_cpu', 'battlearea','context'],
         data: function () {
             return {
                 columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -96,7 +96,7 @@
                 if (this.cell_validate(x, y, shipsize, orient)) {
                     this.cellmark(x, y, "ship", true)
                 } else {
-                    alert("inaccessible coordinates")
+                    this.$emit('message', "inaccessible coordinates")
                 }
             },
             cellmark: function (x, y, name, condition) {
@@ -185,11 +185,12 @@
                             }
                             cell.hit = true
                             cell.ship = false
-                            alert("Hit!!!")
+                            this.$emit('message', "Hit!!!")
+
                         } else {
                             cell.disabled = false
                             cell.miss = true
-                             alert("Miss...")
+                            this.$emit('message', "Miss...")
                         }
                         this.shot_map.push([x,y])
                         done = true;
@@ -223,12 +224,12 @@
                             }
                             cell.hit = true
                             cell.ship = false
-                            alert("Hit!!!")
+                            this.$emit('message', "Hit!!!")
 
                         } else {
                             cell.disabled = false
                             cell.miss = true
-                            alert("Miss...")
+                            this.$emit('message', "Miss...")
                         }
                         this.shot_map.push([x,y])
                         done = true;
