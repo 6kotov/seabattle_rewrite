@@ -1,6 +1,7 @@
 <template>
   <div>
-<Cell @xy_position="coord_emit" :battlefield="battlefield" :colindex="colindex" :rowindex="row"  v-for="row in rows" :key="row.id"/>
+<Cell @xy_position="coord_emit" :battlefield="battlefield"
+      :colindex="colindex" :rowindex="row"  v-for="row in rows" :key="row.id"/>
 
   </div>
 </template>
@@ -19,8 +20,8 @@ export default {
   },
   methods: {
     coord_emit: function (x,y) {
-      let shipsize = 1, orient = 0;
-      this.$emit('mouse_ship_draw', x, y, shipsize, orient);
+
+      this.$emit('mouse_act', x, y);
     }
   }
 }

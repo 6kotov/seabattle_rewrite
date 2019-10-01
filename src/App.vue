@@ -2,23 +2,33 @@
   <div  class="background">
 
     <div class="Battlefield">
-     <b>-- Player 1 --</b>  <Battlefield ref="battle" @battlefield_cpu="battlefield_cpu"
+     <b>--Compukter --</b>  <Battlefield ref="battle" @battlefield_cpu="battlefield_cpu"
                                          @enemy_shipfield_cpu="fieldemit_cpu"
                                          @message="message_emit($event)"
                                          :context="game_condition()"
                                          :ship_field="ship_field"
                                          :battlearea="battlearea"/>
-      <button @click="$refs.battle.random_shot()" >-Shot-</button>
+<!--      <button v-if="game_status.computer_move"  @click="$refs.battle.random_shot_cpu()" >-Shot-</button>-->
     </div>
-    <Status_table :context="game_condition()" :message="message"  @message="message_emit($event)" class="Status_table" />
+    <div class="Status_table" > <Status_table ref="status" :context="game_condition()"
+                                              :message="message"
+                                              @message="message_emit($event)"/>
+      <button v-if="game_status.ship_placing" @click="$refs.status.start_game() &
+                                                      $refs.battle.ship_draw(true) ">
+                                                      Start game </button>
+      <button v-if="game_status.ship_placing" @click="$refs.battle_cpu.ship_draw(false)">Random</button>
+    </div>
     <div class="Battlefield_cpu">
-      <b>-- Compukter --</b> <Battlefield ref="battle_cpu" @battlefield="battlefield"
+      <b>--  Player 1 --</b> <Battlefield ref="battle_cpu" @battlefield="battlefield"
                                           @enemy_shipfield="fieldemit"
                                           @message="message_emit($event)"
+                                          @shot_cpu="$refs.battle.random_shot_cpu()"
                                           :context="game_condition()"
                                           :ship_field_cpu="ship_field_cpu"
                                           :battlearea_cpu="battlearea_cpu"/>
-      <button @click="$refs.battle_cpu.random_shot_cpu()" >-Shot-</button>
+      <button v-if="game_status.player_move" @click="$refs.battle_cpu.random_shot()" >-Shot-</button>
+
+
   </div>
 
   </div>
@@ -62,8 +72,10 @@ export default {
     },
     message_emit(event) {
       this.message = event
-      console.log(this.message)
-
+      setTimeout(this.timeout, 1000)
+    },
+    timeout(){
+      this.message = ""
     }
   }
 }
