@@ -1,6 +1,6 @@
 <template>
   <div>
-<Row @mouse_act="mouse_ship_mark" :battlefield="battlefield"
+<Row @mouse_act="mouse_mark" :battlefield="battlefield"
      :colindex="column" v-for="column in columns"
      :key="column.id "/>
     <TextInput v-if="context.game_status.ship_placing" @position="shipmark" />
@@ -42,7 +42,8 @@
                             hit: false,
                             disabled: false,
                             miss: false,
-                            invisible: false
+                            invisible: false,
+                            explored_cell: false
 
                         }
                     }
@@ -103,13 +104,23 @@
                 }
                 return coordinates
             },
-            mouse_ship_mark: function (x, y) {
-                let counter = 1
-                if (this.cell_validate(x, y, counter, 0)
-                    && this.context.ship_field.length < 10) {
-                    this.shipmark(x, y, counter, 0)
-                } else {
-                    this.$emit('message', "inaccessible coordinates")
+            mouse_mark (x, y, z) {
+                if (z === 1) {
+                    if (this.context.game_status.ship_placing) {
+                        let counter = 1
+                        if (this.cell_validate(x, y, counter, 0)
+                            && this.context.ship_field.length < 10) {
+                            this.shipmark(x, y, counter, 0)
+                        } else {
+                            this.$emit('message', "inaccessible coordinates")
+                        }
+                    } else {
+                        this.random_shot(x, y)
+                    }
+                } else  {
+                    this.battlearea_cpu[x][y].explored_cell =
+                        !this.battlearea_cpu[x][y].explored_cell
+
                 }
             },
             cellmark: function (x, y, name, condition) {
@@ -173,49 +184,51 @@
                 this.$emit('battlefield', this.battlefield)
 
             },
-            random_shot: function () {
-                let done = false;
-                while (!done) {
-                    let x = this.get_random(9),
-                        y = this.get_random(9),
-                        cell = this.battlearea_cpu[x][y],
-                        length = this.ship_field_cpu.length;
+            random_shot (posX,posY) {
+                if (!this.context.game_status.computer_move) {
+                    let done = false;
+                    while (!done) {
+                        let x = posX === -1 ? this.get_random(9): posX;
+                        let y = posY === -1 ? this.get_random(9): posY;
+                        let  cell = this.battlearea_cpu[x][y],
+                            length = this.ship_field_cpu.length;
 
-                    if (this.shot_validate(x, y)) {
-                        if (cell.ship) {
+                        if (this.shot_validate(x, y)) {
+                            if (cell.ship) {
 
-                            for (let i = 0; i < length; i++) {
-                                let pos = this.ship_field_cpu[i]
+                                for (let i = 0; i < length; i++) {
+                                    let pos = this.ship_field_cpu[i]
 
-                                for (let j = 0; j < pos.positions.length; j++) {
-                                    if (x === this.ship_field_cpu[i].positions[j][0] &&
-                                        y === this.ship_field_cpu[i].positions[j][1]) {
-                                        this.ship_field_cpu[i].damage.push([x, y])
+                                    for (let j = 0; j < pos.positions.length; j++) {
+                                        if (x === this.ship_field_cpu[i].positions[j][0] &&
+                                            y === this.ship_field_cpu[i].positions[j][1]) {
+                                            this.ship_field_cpu[i].damage.push([x, y])
+                                        }
+                                    }
+                                    if (pos.positions.length === pos.damage.length) {
+                                        pos.loss = true
                                     }
                                 }
-                                if (pos.positions.length === pos.damage.length) {
-                                    pos.loss = true
+                                cell.hit = true
+                                cell.ship = false
+                                cell.invisible = false
+                                this.$emit('message', "Hit!!!")
+
+                            } else {
+                                    cell.disabled = false
+                                    cell.miss = true
+                                    this.$emit('message', "Miss...")
+                                setTimeout(() => { this.move_switch() }, 1000)
+                                    setTimeout(() => { this.$emit('shot_cpu') }, 1000)
                                 }
+                            this.shot_map.push([x, y])
+                            done = true;
+
                             }
-                            cell.hit = true
-                            cell.ship = false
-                            cell.invisible = false
-                            this.$emit('message', "Hit!!!")
-
-                        } else {
-                            cell.disabled = false
-                            cell.miss = true
-                            this.$emit('message', "Miss...")
-                            this.move_switch()
-                            this.$emit('shot_cpu')
                         }
-                        this.shot_map.push([x, y])
-                        done = true;
-
-                    }
                 }
             },
-            random_shot_cpu: function () {
+            random_shot_cpu () {
                 let done = false;
                 while (!done) {
                     let x = this.get_random(9),
@@ -225,7 +238,6 @@
 
                     if (this.shot_validate(x, y)) {
                         if (cell.ship) {
-
                             for (let i = 0; i < length; i++) {
                                 let pos = this.ship_field[i]
 
@@ -242,12 +254,13 @@
                             cell.hit = true
                             cell.ship = false
                             this.$emit('message', "Hit!!!")
-                            setTimeout(this.random_shot_cpu, 1000)
+                            setTimeout(()=>{this.random_shot_cpu()}, 1000)
                         } else {
                             cell.disabled = false
                             cell.miss = true
+
+                            setTimeout(()=>{this.move_switch()}, 1000)
                             this.$emit('message', "Miss...")
-                            setTimeout(this.move_switch, 1000)
                         }
                         this.shot_map.push([x, y])
                         done = true;

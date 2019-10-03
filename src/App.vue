@@ -8,7 +8,6 @@
                                          :context="game_condition()"
                                          :ship_field="ship_field"
                                          :battlearea="battlearea"/>
-<!--      <button v-if="game_status.computer_move"  @click="$refs.battle.random_shot_cpu()" >-Shot-</button>-->
     </div>
     <div class="Status_table" > <Status_table ref="status" :context="game_condition()"
                                               :message="message"
@@ -23,10 +22,11 @@
                                           @enemy_shipfield="fieldemit"
                                           @message="message_emit($event)"
                                           @shot_cpu="$refs.battle.random_shot_cpu()"
+                                          @mouse_shot="$refs.battle_cpu.random_shot()"
                                           :context="game_condition()"
                                           :ship_field_cpu="ship_field_cpu"
                                           :battlearea_cpu="battlearea_cpu"/>
-      <button v-if="game_status.player_move" @click="$refs.battle_cpu.random_shot()" >-Shot-</button>
+      <button @click="$refs.battle_cpu.random_shot(-1,-1)" >-Random shot-</button>
 
 
   </div>

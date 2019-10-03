@@ -19,9 +19,9 @@ export default {
     }
   },
   methods: {
-    coord_emit: function (x,y) {
+    coord_emit (x, y, z) {
 
-      this.$emit('mouse_act', x, y);
+      this.$emit('mouse_act', x, y, z);
     }
   }
 }

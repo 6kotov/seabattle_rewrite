@@ -1,11 +1,24 @@
 <template>
 
-  <div v-on:click="coordinates_emit" class="invisible_ship" v-if="isship_invisible" >{{colindex}}{{rowindex}}</div>
-  <div v-on:click="coordinates_emit" class="ship" v-else-if="isship" >{{colindex}}{{rowindex}}</div>
+  <div v-on:click.left="coordinates_emit(1)" v-on:click.right="coordinates_emit(0)"
+       class="invisible_ship" v-if="isship_invisible" >{{colindex}}{{rowindex}}</div>
+
+  <div v-on:click.left="coordinates_emit(1)"  v-on:click.right="coordinates_emit(0)"
+       class="ship" v-else-if="isship" >{{colindex}}{{rowindex}}</div>
+
   <div class="hit" v-else-if="ishit" >{{colindex}}{{rowindex}}</div>
+
   <div class="miss" v-else-if="ismiss" >{{colindex}}{{rowindex}}</div>
-  <div v-on:click="coordinates_emit" class="disabled" v-else-if="isdisabled" >{{colindex}}{{rowindex}}</div>
-  <div v-on:click="coordinates_emit" v-else>{{colindex}}{{rowindex}}</div>
+
+  <div v-on:click.left="coordinates_emit(1)"  v-on:click.right="coordinates_emit(0)"
+       class="disabled" v-else-if="isdisabled" >{{colindex}}{{rowindex}}</div>
+
+  <div   v-on:click.right="coordinates_emit(0)" class="explored"
+         v-else-if="isexplored" >{{colindex}}{{rowindex}}</div>
+
+  <div v-on:click.left="coordinates_emit(1)"  v-on:click.right="coordinates_emit(0)"
+       v-else>{{colindex}}{{rowindex}}</div>
+
 </template>
 
 <script>
@@ -33,15 +46,18 @@ props:["rowindex","colindex","battlefield"],
     },
     ismiss: function () {
       return this.battlefield[this.colindex][this.rowindex].miss
+    },
+    isexplored: function () {
+      return this.battlefield[this.colindex][this.rowindex].explored_cell
     }
   },
   methods:{
-    coordinates_emit: function () {
+    coordinates_emit: function (z) {
 
      let x = this.x ,
          y = this.y;
 
-      this.$emit('xy_position', x , y);
+      this.$emit('xy_position', x, y, z);
      }
   },
 }
@@ -50,6 +66,7 @@ props:["rowindex","colindex","battlefield"],
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
   div {
+
     font-size:14px;
     background-color: rgba(93, 255, 253, 0.21);
     color: rgba(1, 0, 55, 0);
@@ -81,6 +98,11 @@ props:["rowindex","colindex","battlefield"],
   }
   .miss  {
     background-color: rgb(157, 117, 0);
+    color: rgba(93, 255, 253, 0);
+    border: 1px solid rgb(0, 0, 0);
+  }
+  .explored  {
+    background-color: rgb(7, 4, 157);
     color: rgba(93, 255, 253, 0);
     border: 1px solid rgb(0, 0, 0);
   }
