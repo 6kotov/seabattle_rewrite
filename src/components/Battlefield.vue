@@ -1,6 +1,6 @@
 <template>
   <div>
-<Row @mouse_act="mouse_mark" :battlefield="battlefield"
+<Row @mouse_act="mouse_mark"  :battlefield="battlefield"
      :colindex="column" v-for="column in columns"
      :key="column.id "/>
     <TextInput v-if="context.game_status.ship_placing" @position="shipmark" />
@@ -19,7 +19,7 @@
             Row,
             TextInput
         },
-        props:['ship_field', 'ship_field_cpu', 'battlearea_cpu', 'battlearea','context'],
+        props:[ 'player_shot_XY','comp_shot_XY', 'context'],
         data: function () {
             return {
                 columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -115,12 +115,10 @@
                             this.$emit('message', "inaccessible coordinates")
                         }
                     } else {
-                        this.random_shot(x, y)
+                        this.$emit ('mouse_shot_coordinates', {x: x, y: y} )
                     }
-                } else  {
-                    this.battlearea_cpu[x][y].explored_cell =
-                        !this.battlearea_cpu[x][y].explored_cell
-
+                } else if (z === 0) {
+                   console.log("it wirks, Azirov!")
                 }
             },
             cellmark: function (x, y, name, condition) {
@@ -178,93 +176,31 @@
                         this.ship_map.push(Ship.ShipsX(ships_size, this, result))
                     }
                 }
-                this.$emit('enemy_shipfield', this.ship_map)
-                this.$emit('enemy_shipfield_cpu', this.ship_map)
-                this.$emit('battlefield_cpu', this.battlefield)
-                this.$emit('battlefield', this.battlefield)
-
+                this.$emit('ship_field',this.ship_map)
             },
-            random_shot (posX,posY) {
-                if (!this.context.game_status.computer_move) {
+            player_shot (posX,posY) {
                     let done = false;
                     while (!done) {
-                        let x = posX === -1 ? this.get_random(9): posX;
-                        let y = posY === -1 ? this.get_random(9): posY;
-                        let  cell = this.battlearea_cpu[x][y],
-                            length = this.ship_field_cpu.length;
+                    let x = posX === -1 ? this.get_random(9): posX;
+                    let y = posY === -1 ? this.get_random(9): posY;
 
                         if (this.shot_validate(x, y)) {
-                            if (cell.ship) {
-
-                                for (let i = 0; i < length; i++) {
-                                    let pos = this.ship_field_cpu[i]
-
-                                    for (let j = 0; j < pos.positions.length; j++) {
-                                        if (x === this.ship_field_cpu[i].positions[j][0] &&
-                                            y === this.ship_field_cpu[i].positions[j][1]) {
-                                            this.ship_field_cpu[i].damage.push([x, y])
-                                        }
-                                    }
-                                    if (pos.positions.length === pos.damage.length) {
-                                        pos.loss = true
-                                    }
-                                }
-                                cell.hit = true
-                                cell.ship = false
-                                cell.invisible = false
-                                this.$emit('message', "Hit!!!")
-
-                            } else {
-                                    cell.disabled = false
-                                    cell.miss = true
-                                    this.$emit('message', "Miss...")
-                                setTimeout(() => { this.move_switch() }, 1000)
-                                    setTimeout(() => { this.$emit('shot_cpu') }, 1000)
-                                }
-                            this.shot_map.push([x, y])
-                            done = true;
-
-                            }
+                                this.$emit('player_shot_coordinates', {x: x, y: y})
+                                this.shot_map.push([x, y])
+                                done = true;
                         }
-                }
+                    }
             },
-            random_shot_cpu () {
+            comp_shot () {
                 let done = false;
                 while (!done) {
                     let x = this.get_random(9),
-                        y = this.get_random(9),
-                        cell = this.battlearea[x][y],
-                        length = this.ship_field.length;
+                        y = this.get_random(9);
 
                     if (this.shot_validate(x, y)) {
-                        if (cell.ship) {
-                            for (let i = 0; i < length; i++) {
-                                let pos = this.ship_field[i]
-
-                                for (let j = 0; j < pos.positions.length; j++) {
-                                    if (x === this.ship_field[i].positions[j][0] &&
-                                        y === this.ship_field[i].positions[j][1]) {
-                                        this.ship_field[i].damage.push([x, y])
-                                    }
-                                }
-                                if (pos.positions.length === pos.damage.length) {
-                                    pos.loss = true
-                                }
-                            }
-                            cell.hit = true
-                            cell.ship = false
-                            this.$emit('message', "Hit!!!")
-                            setTimeout(()=>{this.random_shot_cpu()}, 1000)
-                        } else {
-                            cell.disabled = false
-                            cell.miss = true
-
-                            setTimeout(()=>{this.move_switch()}, 1000)
-                            this.$emit('message', "Miss...")
-                        }
+                        this.$emit('comp_shot_coordinates', {x: x, y: y})
                         this.shot_map.push([x, y])
                         done = true;
-
                     }
                 }
             },
@@ -282,7 +218,76 @@
                this.context.game_status.player_move = !this.context.game_status.player_move
                this.context.game_status.computer_move = !this.context.game_status.computer_move
             }
+        },
+        watch: {
+            player_shot_XY: function () {
+                let length = this.ship_map.length,
+                    x = this.player_shot_XY.x,
+                    y = this.player_shot_XY.y,
+                    cell = this.battlefield[x][y];
 
+                    if (cell.ship) {
+
+                    for (let i = 0; i < length; i++) {
+                        let pos = this.ship_map[i]
+
+                        for (let j = 0; j < pos.positions.length; j++) {
+                            if (x === pos.positions[j][0] &&
+                                y === pos.positions[j][1]) {
+                                pos.damage.push([x, y])
+                            }
+                        }
+                        if (pos.positions.length === pos.damage.length) {
+                            pos.loss = true
+                        }
+                    }
+                    cell.hit = true
+                    cell.ship = false
+                    cell.invisible = false
+                    this.$emit('message', "Hit!!!")
+                } else {
+                    cell.disabled = false
+                    cell.miss = true
+                    this.$emit('message', "Miss...")
+                  setTimeout( ()=>{ this.$emit('shot_cpu')},1000)
+                  setTimeout( ()=>{ this.move_switch()},1000)
+                }
+            },
+            comp_shot_XY: function () {
+                let length = this.ship_map.length,
+                    x = this.comp_shot_XY.x,
+                    y = this.comp_shot_XY.y,
+                    cell = this.battlefield[x][y];
+
+                    if (cell.ship) {
+
+                    for (let i = 0; i < length; i++) {
+                        let pos = this.ship_map[i]
+
+                        for (let j = 0; j < pos.positions.length; j++) {
+                            if (x === pos.positions[j][0] &&
+                                y === pos.positions[j][1]) {
+                                pos.damage.push([x, y])
+                            }
+                        }
+                        if (pos.positions.length === pos.damage.length) {
+                            pos.loss = true
+                        }
+                    }
+                    cell.hit = true
+                    cell.ship = false
+                    cell.invisible = false
+                    setTimeout( ()=>{  this.$emit('message', "Hit!!!")},1000)
+                    setTimeout( ()=>{  this.$emit('shot_cpu')},1000)
+                }
+            else
+                {
+                    cell.disabled = false
+                    cell.miss = true
+                    setTimeout( ()=>{ this.$emit('message', "Miss...")},1000)
+                    setTimeout( ()=>{  this.move_switch()},1000)
+                }
+            }
 
         }
     }

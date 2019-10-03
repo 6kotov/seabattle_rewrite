@@ -2,31 +2,31 @@
   <div  class="background">
 
     <div class="Battlefield">
-     <b>--Compukter --</b>  <Battlefield ref="battle" @battlefield_cpu="battlefield_cpu"
-                                         @enemy_shipfield_cpu="fieldemit_cpu"
+     <b>--Compukter --</b>  <Battlefield ref="battle"
+                                         @comp_shot_coordinates="comp_shot_coordinates"
+                                         @mouse_shot_coordinates="player_shot_coordinates($event)"
                                          @message="message_emit($event)"
+                                         @shot_cpu="$refs.battle.comp_shot()"
                                          :context="game_condition()"
-                                         :ship_field="ship_field"
-                                         :battlearea="battlearea"/>
+                                         :player_shot_XY="player_shot_coord"/>
     </div>
     <div class="Status_table" > <Status_table ref="status" :context="game_condition()"
                                               :message="message"
                                               @message="message_emit($event)"/>
-      <button v-if="game_status.ship_placing" @click="$refs.status.start_game() &
-                                                      $refs.battle.ship_draw(true) ">
+      <button v-if="game_status.ship_placing" @click="$refs.battle.ship_draw(true) &
+                                                      $refs.status.start_game()">
                                                       Start game </button>
       <button v-if="game_status.ship_placing" @click="$refs.battle_cpu.ship_draw(false)">Random</button>
     </div>
     <div class="Battlefield_cpu">
-      <b>--  Player 1 --</b> <Battlefield ref="battle_cpu" @battlefield="battlefield"
-                                          @enemy_shipfield="fieldemit"
+      <b>--  Player 1 --</b> <Battlefield ref="battle_cpu"
+                                          @player_shot_coordinates="player_shot_coordinates($event)"
+                                          @ship_field="ship_field($event)"
                                           @message="message_emit($event)"
-                                          @shot_cpu="$refs.battle.random_shot_cpu()"
-                                          @mouse_shot="$refs.battle_cpu.random_shot()"
+                                          @shot_cpu="$refs.battle.comp_shot()"
                                           :context="game_condition()"
-                                          :ship_field_cpu="ship_field_cpu"
-                                          :battlearea_cpu="battlearea_cpu"/>
-      <button @click="$refs.battle_cpu.random_shot(-1,-1)" >-Random shot-</button>
+                                          :comp_shot_XY="comp_shot_coord"/>
+      <button @click="$refs.battle_cpu.player_shot(-1,-1)" >-Random shot-</button>
 
 
   </div>
@@ -47,25 +47,18 @@ export default {
   mixins:[Game_status],
   data: function(){
     return {
-      ship_field:"",
-      ship_field_cpu:"",
-      battlearea:"",
-      battlearea_cpu:"",
-      message:""
+      player_shot_coord:"",
+      comp_shot_coord:"",
+      message:"",
+      ship_field_player:""
     }
   },
   methods: {
-    fieldemit: function (event) {
-      this.ship_field = event
+    player_shot_coordinates: function (event) {
+      this.player_shot_coord = event
     },
-    fieldemit_cpu: function (event) {
-      this.ship_field_cpu = event
-    },
-    battlefield: function (event) {
-      this.battlearea = event
-    },
-    battlefield_cpu: function (event) {
-      this.battlearea_cpu = event
+    comp_shot_coordinates: function (event) {
+      this.comp_shot_coord = event
     },
     game_condition() {
       return this
@@ -74,8 +67,8 @@ export default {
       this.message = event
       setTimeout(this.timeout, 1000)
     },
-    timeout(){
-      this.message = ""
+    ship_field(event){
+      this.ship_field_player = event
     }
   }
 }

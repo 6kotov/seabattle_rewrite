@@ -18,7 +18,7 @@ export default {
   },
   methods: {
     start_game: function () {
-      if (this.context.ship_field.length === 10){
+      if (this.context.ship_field_player.length === 10){
       this.context.game_status.ship_placing = false
       this.context.game_status.player_move = true
       } else {
