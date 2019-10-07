@@ -1,11 +1,12 @@
 export default {
-        ShipsX: function (size, bridge, result) {
+        ShipsX: function (size, bridge, result, orient) {
                 return {
                     bridge: bridge,
                     size: size,
                     positions: result,
                     damage: [],
-                    loss: false
+                    loss: false,
+                    orient: orient
                     }
 
                 }

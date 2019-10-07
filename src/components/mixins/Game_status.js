@@ -6,7 +6,7 @@ export default {
                 player_move: false,
                 computer_move: false,
                 win: false,
-                winner: ""
+                winner:""
             }
         }
     }

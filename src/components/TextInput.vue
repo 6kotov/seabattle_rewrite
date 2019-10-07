@@ -20,8 +20,8 @@ export default {
         y = parseInt(rez[3]),
         shipsize = parseInt(rez[4]),
         orient = parseInt(rez[5]);
-
-      this.$emit('position', x , y, shipsize, orient);
+        if (rez.length > 3){ this.$emit('position', x , y, shipsize, orient, false,"disabled", "ship", true, true)
+          this.coordinates = "" }
     }
   }
 }

@@ -12,7 +12,8 @@
     </div>
     <div class="Status_table" > <Status_table ref="status" :context="game_condition()"
                                               :message="message"
-                                              @message="message_emit($event)"/>
+                                              @message="message_emit($event)"
+                                              :ship_field_player="ship_field_player"/>
       <button v-if="game_status.ship_placing" @click="$refs.battle.ship_draw(true) &
                                                       $refs.status.start_game()">
                                                       Start game </button>
@@ -65,7 +66,7 @@ export default {
     },
     message_emit(event) {
       this.message = event
-      setTimeout(this.timeout, 1000)
+      setTimeout( ()=>{ this.message = " " },1000)
     },
     ship_field(event){
       this.ship_field_player = event

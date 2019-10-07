@@ -8,13 +8,13 @@
 
   <div class="hit" v-else-if="ishit" >{{colindex}}{{rowindex}}</div>
 
+  <div   v-on:click.right="coordinates_emit(0)" class="explored"
+         v-else-if="isexplored" >{{colindex}}{{rowindex}}</div>
+
   <div class="miss" v-else-if="ismiss" >{{colindex}}{{rowindex}}</div>
 
   <div v-on:click.left="coordinates_emit(1)"  v-on:click.right.prevent="coordinates_emit(0)"
        class="disabled" v-else-if="isdisabled" >{{colindex}}{{rowindex}}</div>
-
-  <div   v-on:click.right="coordinates_emit(0)" class="explored"
-         v-else-if="isexplored" >{{colindex}}{{rowindex}}</div>
 
   <div v-on:click.left="coordinates_emit(1)"  v-on:click.right.prevent="coordinates_emit(0)"
        v-else>{{colindex}}{{rowindex}}</div>
@@ -48,7 +48,7 @@ props:["rowindex","colindex","battlefield"],
       return this.battlefield[this.colindex][this.rowindex].miss
     },
     isexplored: function () {
-      return this.battlefield[this.colindex][this.rowindex].explored_cell
+      return this.battlefield[this.colindex][this.rowindex].explored
     }
   },
   methods:{
@@ -102,7 +102,7 @@ props:["rowindex","colindex","battlefield"],
     border: 1px solid rgb(0, 0, 0);
   }
   .explored  {
-    background-color: rgb(157, 117, 0);
+    background-color: rgb(10, 13, 103);
     color: rgba(93, 255, 253, 0);
     border: 1px solid rgb(0, 0, 0);
   }
