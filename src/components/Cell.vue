@@ -42,7 +42,7 @@ props:["rowindex","colindex","battlefield"],
       return this.battlefield[this.colindex][this.rowindex].hit
     },
     isdisabled: function () {
-      return this.battlefield[this.colindex][this.rowindex].disabled
+      return this.battlefield[this.colindex][this.rowindex].disabled > 0
     },
     ismiss: function () {
       return this.battlefield[this.colindex][this.rowindex].miss
@@ -79,7 +79,7 @@ props:["rowindex","colindex","battlefield"],
   }
   .ship  {
     background-color: #315358;
-    color: rgba(211, 228, 255, 0);
+    color: rgba(106, 255, 1, 0);
     border: 1px solid #e58700;
   }
   .invisible_ship {

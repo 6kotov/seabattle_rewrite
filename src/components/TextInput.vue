@@ -14,14 +14,15 @@ export default {
   methods: {
     TextValidation: function () {
        let re = /((\d?),(\d{1}),([1-4]),([0-1]))/;
-       let string = this.coordinates;
-       let rez = string.match(re);
+       let rez =this.coordinates.match(re);
        let x = parseInt(rez[2]),
         y = parseInt(rez[3]),
         shipsize = parseInt(rez[4]),
         orient = parseInt(rez[5]);
-        if (rez.length > 3){ this.$emit('position', x , y, shipsize, orient, false,"disabled", "ship", true, true)
-          this.coordinates = "" }
+        if (rez.length > 3) {
+          this.$emit('position', x , y, shipsize, orient, false,"disabled", "ship", true, true)
+          this.coordinates = ""
+        }
     }
   }
 }
