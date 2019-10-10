@@ -7,7 +7,6 @@
                                          @mouse_shot_coordinates="player_shot_coordinates($event)"
                                          @message="message_emit($event)"
                                          @shot_cpu="$refs.battle.comp_shot()"
-                                         @comp_shot_AI="comp_shot_AI_emit($event)"
                                          :context="game_condition()"
                                          :player_shot_XY="player_shot_coord"
                                          :comp_shot_AI="comp_shot_AI"/>
@@ -15,7 +14,8 @@
     <div class="Status_table" > <Status_table ref="status" :context="game_condition()"
                                               :message="message"
                                               @message="message_emit($event)"
-                                              @shot_cpu="$refs.battle.comp_shot()"
+                                              @shot_cpu="$refs.battle. comp_random_shot(-1, -1)"
+                                              @comp_shot_AI="comp_shot_AI_emit($event)"
                                               :ship_field_player="ship_field_player"/>
       <button v-if="game_status.ship_placing" @click="$refs.battle.ship_draw(true) &
                                                       $refs.status.start_game()">
@@ -27,6 +27,7 @@
                                           @player_shot_coordinates="player_shot_coordinates($event)"
                                           @ship_field="ship_field($event)"
                                           @message="message_emit($event)"
+                                          @comp_shot_AI="comp_shot_AI_emit($event)"
                                           @shot_cpu="$refs.battle.comp_shot()"
                                           :context="game_condition()"
                                           :comp_shot_XY="comp_shot_coord"/>
@@ -55,7 +56,7 @@ export default {
       comp_shot_coord:"",
       message:"",
       ship_field_player:"",
-      comp_shot_AI:""
+      comp_shot_AI:"",
     }
   },
   methods: {
@@ -78,6 +79,8 @@ export default {
     comp_shot_AI_emit(event){
       this.comp_shot_AI = event
     }
+
+
   }
 }
 </script>

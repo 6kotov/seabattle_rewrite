@@ -28,8 +28,9 @@
                 shot_map: [],
                 counter: 0,
                 ships_data: [4,3,3,2,2,2,1,1,1,1],
-                loss: true,
-                previous_hit:[],
+                loss: true ,
+                comp_loss: "",
+                previous_hit:[3,5],
                 first_hit:[],
                 second_hit:[],
                 orient: 0
@@ -260,6 +261,7 @@
                     let y = posY === -1 ? this.get_random(9): posY;
 
                         if (this.shot_validate(x, y)) {
+                            console.log("player loss = '"+ this.loss + "'")
                                 this.$emit('player_shot_coordinates', {x: x, y: y})
                                 this.shot_map.push([x, y])
                                 done = true;
@@ -267,37 +269,75 @@
                     }
             },
             comp_shot () {
-                let loss = this.loss,
-                    x = this.comp_shot_AI.x,
-                    y = this.comp_shot_AI.y;
+                let orient = this.orient,
+                    x = this.previous_hit[0],
+                    y = this.previous_hit[1],
+                    hit_1 = this.first_hit,
+                    hit_2 = this.second_hit;
+                    this.comp_loss = this.comp_shot_AI
+                console.log("X= ", x , "Y= ", y)
 
-                if (!loss) {
-                    if (this.orient === 0) {
+                if (!this.comp_loss) {
+                    console.log("!comploss")
+                    if (orient === 0 && hit_2.length === 0) {
+                        hit_1.push(x,y)
+                        console.log("searching orient")
                         if (this.shot_validate(x + 1, y)) {
                             this.comp_random_shot(x + 1, y)
+                            hit_2.push(x + 1, y)
+                            console.log("(x + 1, y)")
                         } else if (this.shot_validate(x - 1, y)) {
                             this.comp_random_shot(x - 1, y)
+                            hit_2.push(x - 1, y)
+                            console.log("(x - 1, y)")
                         } else if (this.shot_validate(x, y + 1)) {
                             this.comp_random_shot(x, y + 1)
-                        } else if (this.shot_validate(x + 1, y)) {
+                            hit_2.push(x, y + 1)
+                            console.log("(x, y + 1)")
+                        } else if (this.shot_validate(x , y - 1)) {
                             this.comp_random_shot(x, y - 1)
+                            hit_2.push(x, y - 1)
+                            console.log("(x, y - 1)")
                         }
-                    } else if (this.orient === +1) {
-                            this.comp_random_shot(x + 1, y)
-                    } else if (this.orient === -1) {
-                            this.comp_random_shot(x - 1, y)
-                    }else if (this.orient === -2) {
-                            this.comp_random_shot(x, y - 1)
-                    }else if (this.orient === +2) {
-                            this.comp_random_shot(x, y + 1)
+                    } else if(orient === 0) {
+                        console.log("orient = ", orient)
+                        console.log("hit_1", hit_1)
+                        console.log("hit_2 = ", hit_2)
+                        console.log("x ",x , "y ", y)
+                        if (hit_1[0] === hit_2[0] && hit_1[1] > hit_2[1])
+                        {
+                            orient = -1
+                            console.log("orient = ", orient)
+                        } else if (hit_1[0] === hit_2[0] && hit_1[1] < hit_2[1]) {
+                            orient = +1
+                            console.log("orient = ", orient)
+                        } else if (hit_1[0] < hit_2[0] &&hit_1[1] === hit_2[1]) {
+                            orient = -2
+                            console.log("orient = ", orient)
+                        } else if (hit_1[0] > hit_2[0] && hit_1[1] === hit_2[1]) {
+                            orient = +2
+                            console.log("orient = ", orient)
+                        }
                     }
+
+                    if (orient === +1) {
+                            this.comp_random_shot(hit_1[0] + 1, y)
+                    } else if (orient === -1) {
+                            this.comp_random_shot(hit_1[0] - 1, y)
+                    }else if (orient === -2) {
+                            this.comp_random_shot(x,  hit_1[1] - 1)
+                    }else if (orient === +2) {
+                            this.comp_random_shot(x,  hit_1[1] + 1)
+                    }
+
                 } else {
+                    orient = 0
+                    hit_2 = []
+                    this.first_hit = []
                     this.comp_random_shot(-1, -1)
                 }
-                this.previous_hit.push(x,y)
             },
             comp_random_shot (posX, posY) {
-                console.log(posX, posY)
                 let done = false;
                 while (!done) {
                     let x = posX === -1 ? this.get_random(9): posX;
@@ -306,14 +346,21 @@
                     if (this.shot_validate(x, y)) {
                         this.$emit('comp_shot_coordinates', {x: x, y: y})
                         this.shot_map.push([x, y])
+                        this.previous_hit = []
+                        this.previous_hit.push(x,y)
+                        console.log("comp_loss =  ' " +  this.comp_shot_AI +"'")
                         done = true;
                     }
                 }
             },
             shot_validate: function (x,y) {
                 let length = this.shot_map.length;
+
+                if (x > 9 || x < 0 || y > 9 || y < 0) {  // for computer aiming function
+                    return false
+                }
                 for (let i=0; i < length; i++ ) {
-                    if (x === this.shot_map[i][0] &&
+                     if (x === this.shot_map[i][0] &&
                         y === this.shot_map[i][1] &&
                       this.battlefield[x][y].explored === true){
                         return false
@@ -369,38 +416,30 @@
                         }
                     this.$emit('message', "Hit!!!")
                 } else {
-                    let prev = this.previous_hit;
                     cell.disabled = false
                     cell.miss = true
                     this.$emit('message', "Miss...")
-                        if (prev.x === true) {
                             setTimeout(() => {
-                                this.$emit('comp_shot_AI', {x:prev[0], y:prev[1], loss:this.loss})
-                            }, 1300)
-                        } else {
-                            setTimeout(() => {
-                                this.$emit('comp_shot_AI', {x:-1, y:-1, loss: this.loss})
-                            }, 1300)
+                                this.$emit('comp_shot_AI', this.comp_loss)
+                            }, 1000)
+                        setTimeout( ()=>{ this.move_switch()},1200)
+                        setTimeout( ()=>{ this.$emit('shot_cpu')},1300)
                         }
-                  setTimeout( ()=>{ this.move_switch()},1200)
-                  setTimeout( ()=>{ this.$emit('shot_cpu')},1300)
-                }
-            },
+                },
+
             comp_shot_XY: function () {
                 let length = this.ship_map.length,
                     x = this.comp_shot_XY.x,
                     y = this.comp_shot_XY.y,
-                    cell = this.battlefield[x][y],
-                    loss = this.loss,
-                    hit_1 = this.first_hit,
-                    hit_2 = this.second_hit;
+                    cell = this.battlefield[x][y];
+
                     if (cell.ship) {
 
                         cell.hit = true
                         cell.ship = false
                         cell.invisible = false
                         this.$emit('message', "Hit!!!")
-                        loss = false
+                        this.loss = false
 
                     for (let i = 0; i < length; i++) {
                         let pos = this.ship_map[i]
@@ -414,13 +453,8 @@
                         if (pos.positions.length === pos.damage.length) {
                             let x = pos.positions[0][0],
                                 y = pos.positions[0][1];
-
                             pos.loss = true
-                            loss = true
-                            this.orient = -1
-                            hit_1 = []
-                            hit_2 = []
-                            this.previous_hit = []
+                            this.loss = true
                             this.shipmark(x, y, pos.positions.length, pos.orient, false, "explored", "hit", false, true, false, true)
                         }
                     }
@@ -429,38 +463,20 @@
                             this.context.game_status.computer_move = false
                             this.context.game_status.player_move = false
                             this.context.game_status.win = true
-                        } else if (loss){
+                        } else {
                             setTimeout(() => {
-                                this.$emit('comp_shot_AI', {x:-1, y:-1, loss: this.loss})
-                            }, 1000)
-                            setTimeout(() => {this.$emit('shot_cpu')}, 1200)
-                    } else {
-                            if (this.orient === 0 && hit_1.length === 0){
-                                this.first_hit.push(x,y)
-                            } else if ( hit_1.length === 2) {
-                                hit_2.push(x,y)
-                                if (hit_1[0]=== hit_2[0] && hit_1[1] > hit_2[1]) {
-                                    this.orient = -1
-                                } else if (hit_1[0]=== hit_2[0] && hit_1[1] < hit_2[1]) {
-                                    this.orient = +1
-                                } else if (hit_1[0] < hit_2[0] && hit_1[1] === hit_2[1]) {
-                                    this.orient = -2
-                                }  else if (hit_1[0] > hit_2[0] && hit_1[1] === hit_2[1]) {
-                                    this.orient = +2
-                                }
-                            }
-                            setTimeout(() => {
-                                this.$emit('comp_shot_AI', {x:x, y:y, loss: this.loss})
+                                this.$emit('comp_shot_AI',  this.loss )
                             }, 1000)
                             setTimeout(() => {this.$emit('shot_cpu')}, 1200)
 
                         }
-                }
-            else
-                {
+                } else {
                     cell.disabled = false
                     cell.miss = true
                     this.$emit('message', "Miss...")
+                        setTimeout(() => {
+                            this.$emit('comp_shot_AI',  this.loss)
+                        }, 1000)
                     setTimeout( ()=>{  this.move_switch()},1000)
                 }
             }

@@ -20,9 +20,11 @@ export default {
       if (this.ship_field_player.length === 10 &&  random === 1 ){
       this.context.game_status.ship_placing = false
       this.context.game_status.player_move = true
+        this.$emit('comp_shot_AI', true)
       } else if (this.ship_field_player.length === 10){
         this.context.game_status.ship_placing = false
         this.context.game_status.computer_move = true
+        this.$emit('comp_shot_AI', true)
         this.$emit('shot_cpu')
       } else if (this.ship_field_player.length < 10 &&
               this.ship_field_player.length > 0) {
