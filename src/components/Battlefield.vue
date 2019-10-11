@@ -29,6 +29,7 @@
                 counter: 0,
                 ships_data: [4,3,3,2,2,2,1,1,1,1],
                 loss: true ,
+                hit: false,
                 comp_loss: "",
                 previous_hit:[3,5],
                 first_hit:[],
@@ -272,63 +273,94 @@
                 let orient = this.orient,
                     x = this.previous_hit[0],
                     y = this.previous_hit[1],
+                    hit =  this.comp_shot_AI.hit,
                     hit_1 = this.first_hit,
                     hit_2 = this.second_hit;
-                    this.comp_loss = this.comp_shot_AI
+                    this.hit = this.comp_shot_AI.hit
+                    this.comp_loss = this.comp_shot_AI.loss
                 console.log("X= ", x , "Y= ", y)
+                console.log("HIT", hit)
 
-                if (!this.comp_loss) {
-                    console.log("!comploss")
-                    if (orient === 0 && hit_2.length === 0) {
+                if (!this.comp_shot_AI.loss) {
+
+                    console.log("!comploss" , "hit" , hit)
+
+                    if (orient === 0 && hit && hit_2.length === 0) {
                         hit_1.push(x,y)
-                        console.log("searching orient")
-                        if (this.shot_validate(x + 1, y)) {
-                            this.comp_random_shot(x + 1, y)
-                            hit_2.push(x + 1, y)
+                        console.log("AIMING..." ,"hit_1",hit_1)
+                        if (this.shot_validate(hit_1[0] + 1, hit_1[1])) {
+                            this.comp_random_shot(hit_1[0] + 1, hit_1[1])
+                            hit_2.push(hit_1[0] + 1, hit_1[1])
                             console.log("(x + 1, y)")
-                        } else if (this.shot_validate(x - 1, y)) {
-                            this.comp_random_shot(x - 1, y)
-                            hit_2.push(x - 1, y)
+                        } else if (this.shot_validate(hit_1[0] - 1, hit_1[1])) {
+                            this.comp_random_shot(hit_1[0] - 1, hit_1[1])
+                            hit_2.push(hit_1[0] - 1, hit_1[1])
                             console.log("(x - 1, y)")
-                        } else if (this.shot_validate(x, y + 1)) {
-                            this.comp_random_shot(x, y + 1)
-                            hit_2.push(x, y + 1)
+                        } else if (this.shot_validate(hit_1[0], hit_1[1] + 1)) {
+                            this.comp_random_shot(hit_1[0], hit_1[1] + 1)
+                            hit_2.push(hit_1[0], hit_1[1] + 1)
                             console.log("(x, y + 1)")
-                        } else if (this.shot_validate(x , y - 1)) {
-                            this.comp_random_shot(x, y - 1)
-                            hit_2.push(x, y - 1)
+                        } else if (this.shot_validate(hit_1[0] , hit_1[1] - 1)) {
+                            this.comp_random_shot(hit_1[0], hit_1[1] - 1)
+                            hit_2.push(hit_1[0], hit_1[1] - 1)
                             console.log("(x, y - 1)")
                         }
-                    } else if(orient === 0) {
+
+                    } else if(orient === 0 && !hit) {
+
+                        console.log("MISS... AIMING....", hit_1)
+                        if (this.shot_validate(hit_1[0] + 1, hit_1[1])) {
+                            this.comp_random_shot(hit_1[0] + 1, hit_1[1])
+                            hit_2.push(hit_1[0] + 1, hit_1[1])
+                            console.log("(x + 1, y)")
+                        } else if (this.shot_validate(hit_1[0] - 1, hit_1[1])) {
+                            this.comp_random_shot(hit_1[0] - 1, hit_1[1])
+                            hit_2.push(hit_1[0] - 1, hit_1[1])
+                            console.log("(x - 1, y)")
+                        } else if (this.shot_validate(hit_1[0], hit_1[1] + 1)) {
+                            this.comp_random_shot(hit_1[0], hit_1[1] + 1)
+                            hit_2.push(hit_1[0], hit_1[1] + 1)
+                            console.log("(x, y + 1)")
+                        } else if (this.shot_validate(hit_1[0] , hit_1[1] - 1)) {
+                            this.comp_random_shot(hit_1[0], hit_1[1] - 1)
+                            hit_2.push(hit_1[0], hit_1[1] - 1)
+                            console.log("(x, y - 1)")
+                        }
+
+                    } else if (orient === 0) {
+
                         console.log("orient = ", orient)
                         console.log("hit_1", hit_1)
                         console.log("hit_2 = ", hit_2)
-                        console.log("x ",x , "y ", y)
+                        console.log("x",x,"y",y)
+
                         if (hit_1[0] === hit_2[0] && hit_1[1] > hit_2[1])
-                        {
-                            orient = -1
-                            console.log("orient = ", orient)
+                            {
+                                orient = -1
+                                console.log("orient = ", orient)
                         } else if (hit_1[0] === hit_2[0] && hit_1[1] < hit_2[1]) {
-                            orient = +1
-                            console.log("orient = ", orient)
+                                orient = +1
+                                console.log("orient = ", orient)
                         } else if (hit_1[0] < hit_2[0] &&hit_1[1] === hit_2[1]) {
-                            orient = -2
-                            console.log("orient = ", orient)
+                                orient = -2
+                                console.log("orient = ", orient)
                         } else if (hit_1[0] > hit_2[0] && hit_1[1] === hit_2[1]) {
-                            orient = +2
-                            console.log("orient = ", orient)
+                                orient = +2
+                                console.log("orient = ", orient)
                         }
                     }
 
-                    if (orient === +1) {
-                            this.comp_random_shot(hit_1[0] + 1, y)
-                    } else if (orient === -1) {
-                            this.comp_random_shot(hit_1[0] - 1, y)
-                    }else if (orient === -2) {
-                            this.comp_random_shot(x,  hit_1[1] - 1)
-                    }else if (orient === +2) {
-                            this.comp_random_shot(x,  hit_1[1] + 1)
-                    }
+                        if (orient === +1 && hit) {
+                            this.comp_random_shot(  hit_2[0], hit_2[1] - 1)
+                        } else if (orient === -1 && hit) {
+                            this.comp_random_shot( hit_2[0], hit_2[1] + 1)
+                        }else if (orient === -2 && hit) {
+                            this.comp_random_shot(hit_2[0] + 1,hit_2[1])
+                        }else if (orient === +2 && hit) {
+                            this.comp_random_shot(hit_2[0] - 1, hit_2[1])
+                        } else {
+                            orient = 0
+                        }
 
                 } else {
                     orient = 0
@@ -348,7 +380,7 @@
                         this.shot_map.push([x, y])
                         this.previous_hit = []
                         this.previous_hit.push(x,y)
-                        console.log("comp_loss =  ' " +  this.comp_shot_AI +"'")
+                        console.log("comp_loss =  ' " +  this.comp_shot_AI.loss +"'")
                         done = true;
                     }
                 }
@@ -419,9 +451,6 @@
                     cell.disabled = false
                     cell.miss = true
                     this.$emit('message', "Miss...")
-                            setTimeout(() => {
-                                this.$emit('comp_shot_AI', this.comp_loss)
-                            }, 1000)
                         setTimeout( ()=>{ this.move_switch()},1200)
                         setTimeout( ()=>{ this.$emit('shot_cpu')},1300)
                         }
@@ -465,9 +494,10 @@
                             this.context.game_status.win = true
                         } else {
                             setTimeout(() => {
-                                this.$emit('comp_shot_AI',  this.loss )
+                                this.$emit('comp_shot_AI',  {loss: this.loss, hit: true} )
                             }, 1000)
                             setTimeout(() => {this.$emit('shot_cpu')}, 1200)
+                            console.log("HIT TRUE")
 
                         }
                 } else {
@@ -475,7 +505,7 @@
                     cell.miss = true
                     this.$emit('message', "Miss...")
                         setTimeout(() => {
-                            this.$emit('comp_shot_AI',  this.loss)
+                            this.$emit('comp_shot_AI',  {loss: this.loss, hit: false})
                         }, 1000)
                     setTimeout( ()=>{  this.move_switch()},1000)
                 }
