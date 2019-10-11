@@ -9,6 +9,7 @@
                                          @shot_cpu="$refs.battle.comp_shot()"
                                          :context="game_condition()"
                                          :player_shot_XY="player_shot_coord"
+                                         :explored_cells="explored_cells"
                                          :comp_shot_AI="comp_shot_AI"/>
     </div>
     <div class="Status_table" > <Status_table ref="status" :context="game_condition()"
@@ -29,6 +30,7 @@
                                           @message="message_emit($event)"
                                           @comp_shot_AI="comp_shot_AI_emit($event)"
                                           @shot_cpu="$refs.battle.comp_shot()"
+                                          @explored_cells="explored_cells_emit($event)"
                                           :context="game_condition()"
                                           :comp_shot_XY="comp_shot_coord"/>
       <button @click="$refs.battle_cpu.player_shot(-1,-1)" >-Random shot-</button>
@@ -57,6 +59,7 @@ export default {
       message:"",
       ship_field_player:"",
       comp_shot_AI:"",
+      explored_cells:""
     }
   },
   methods: {
@@ -78,6 +81,10 @@ export default {
     },
     comp_shot_AI_emit(event){
       this.comp_shot_AI = event
+    },
+    explored_cells_emit(event){
+      this.explored_cells = event
+      console.log("Explored cells", event)
     }
 
 
