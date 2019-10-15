@@ -42,9 +42,24 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import Battlefield from './components/Battlefield.vue'
 import Game_status from './components/mixins/Game_status.js'
 import Status_table from './components/Status_table.vue'
+import VueLogger from 'vuejs-logger';
+
+
+const options = {
+  isEnabled: true,
+  logLevel : 'debug',
+  stringifyArguments : false,
+  showLogLevel : false,
+  showMethodName : false,
+  separator: '|',
+  showConsoleColors: true
+};
+
+Vue.use(VueLogger, options);
 
 export default {
   components: {
