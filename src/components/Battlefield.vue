@@ -19,7 +19,7 @@
             Row,
             TextInput
         },
-        props:[ 'player_shot_XY','comp_shot_XY', 'context',"comp_shot_AI","explored_cells"],
+        props:[ 'player_shot_XY','comp_shot_XY', 'context',"comp_shot_AI","explored_cells_prop"],
         data: function () {
             return {
                 columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -28,13 +28,14 @@
                 shot_map: [],
                 counter: 0,
                 ships_data: [4,3,3,2,2,2,1,1,1,1],
-                loss: true ,
+                loss: true,
                 hit: false,
                 comp_loss: "",
                 previous_hit:[3,5],
                 first_hit:[],
                 second_hit:[],
-                orient: 0
+                orient: 0,
+                explored_cells:[]
             }
         },
         methods: {
@@ -70,7 +71,7 @@
                             for (let j = startY; j <= stopY; j++) {
                                 this.cellmark(i, j, value1, val_1_condition)
                                 if (value1 === "explored"){
-                                    this.$emit("explored_cells",[i,j])
+                                    this.explored_cells.push([i,j])
                                 }
                             }
                         }
@@ -95,8 +96,8 @@
                         for (let i = startX; i <= stopX; i++) {
                             for (let j = startY; j <= stopY; j++) {
                                 this.cellmark(i, j, value1, val_1_condition)
-                                if (value1 === "explored"){
-                                    this.$emit("explored_cells",[i,j])
+                                if (value1 === "explored") {
+                                    this.explored_cells.push([i,j])
                                 }
                             }
                         }
@@ -118,6 +119,11 @@
                         this.ship_map.push(Ship.ShipsX(shipsize, this, coordinates, orient))
                         this.counter ++
                     }
+                    if (value1 === "explored") {
+                        this.$emit("explored_cells", this.explored_cells)
+                        this.explored_cells = []
+                    }
+
                 } else {
                     this.$emit('message', "inaccessible coordinates")
                 }
@@ -283,89 +289,97 @@
                     y = this.previous_hit[1],
                     hit =  this.hit,
                     hit_1 = this.first_hit,
-                    hit_2 = this.second_hit;
+                    hit_2 = this.second_hit,
+                    valid = this.shot_validate;
+
 
                 console.log("X= ", x , "Y= ", y)
-                console.log("Props", this.comp_shot_AI)
+                console.log("Props", "HIT: ", this.comp_shot_AI.hit,"LOSS:",this.comp_shot_AI.loss )
 
                 if (! this.comp_loss) {
 
                     if (orient === 0 && hit && hit_2.length === 0) {
                         hit_1.push(x,y)
                         console.log("AIMING..." ,"hit_1",hit_1)
-                        if (this.shot_validate(hit_1[0] + 1, hit_1[1])) {
+                        if (valid(hit_1[0] + 1, hit_1[1])) {
                             this.comp_random_shot(hit_1[0] + 1, hit_1[1])
                             hit_2.push(hit_1[0] + 1, hit_1[1])
                             console.log("1>>down")
-                        } else if (this.shot_validate(hit_1[0] - 1, hit_1[1])) {
+                        } else if (valid(hit_1[0] - 1, hit_1[1])) {
                             this.comp_random_shot(hit_1[0] - 1, hit_1[1])
                             hit_2.push(hit_1[0] - 1, hit_1[1])
                             console.log("1>>up")
-                        } else if (this.shot_validate(hit_1[0], hit_1[1] + 1)) {
+                        } else if (valid(hit_1[0], hit_1[1] + 1)) {
                             this.comp_random_shot(hit_1[0], hit_1[1] + 1)
                             hit_2.push(hit_1[0], hit_1[1] + 1)
                             console.log("1>>right")
-                        } else if (this.shot_validate(hit_1[0] , hit_1[1] - 1)) {
+                        } else if (valid(hit_1[0] , hit_1[1] - 1)) {
                             this.comp_random_shot(hit_1[0], hit_1[1] - 1)
                             hit_2.push(hit_1[0], hit_1[1] - 1)
                             console.log("1>>left")
                         }
 
                     } else if(orient === 0 && !hit) {
-                            hit_2 = []
-                        console.log("MISS... AIMING....", hit_1)
-                        if (this.shot_validate(hit_1[0] - 1, hit_1[1])) {
-                            this.comp_random_shot(hit_1[0] - 1, hit_1[1])
-                            hit_2.push(hit_1[0] - 1, hit_1[1])
-                            console.log("2>>up")
-                        } else if (this.shot_validate(hit_1[0], hit_1[1] + 1)) {
-                            this.comp_random_shot(hit_1[0], hit_1[1] + 1)
-                            hit_2.push(hit_1[0], hit_1[1] + 1)
-                            console.log("2>>right")
-                        } else if (this.shot_validate(hit_1[0] , hit_1[1] - 1)) {
-                            this.comp_random_shot(hit_1[0], hit_1[1] - 1)
-                            hit_2.push(hit_1[0], hit_1[1] - 1)
-                            console.log("2>>left")
-                        }
-
+                            hit_2 = this.orient_detection(hit_1)
                     } else if (orient === 0) {
-
-                        console.log("orient = ", orient)
-                        console.log("x",x,"y",y)
+                        console.log("orient detection", "x",x,"y",y)
+                        console.log("hit_1:", hit_1,"hit_2:",hit_2)
 
                         if (hit_1[0] === hit_2[0] && hit_1[1] > hit_2[1])
-                            {
-                                orient = -1
-                                console.log("orient = ", orient)
+                        {
+                            orient = -1
+                            console.log("orient right ")
                         } else if (hit_1[0] === hit_2[0] && hit_1[1] < hit_2[1]) {
-                                orient = +1
-                                console.log("orient = ", orient)
+                            orient = +1
+                            console.log("orient left ")
                         } else if (hit_1[0] < hit_2[0] &&hit_1[1] === hit_2[1]) {
-                                orient = -2
-                                console.log("orient = ", orient)
+                            orient = -2
+                            console.log("orient down")
                         } else if (hit_1[0] > hit_2[0] && hit_1[1] === hit_2[1]) {
-                                orient = +2
-                                console.log("orient = ", orient)
+                            orient = +2
+                            console.log("orient up")
                         }
+
                     }
 
-                    if (orient === +1 && hit) {
-                            this.comp_random_shot(  hit_2[0], hit_2[1] - 1)
-                        } else if (orient === -1 && hit) {
-                            this.comp_random_shot( hit_2[0], hit_2[1] + 1)
-                        }else if (orient === -2 && hit) {
+                    if (orient === +1 && hit && valid(hit_2[0], hit_2[1] - 1)) {
+                            this.comp_random_shot(hit_2[0], hit_2[1] - 1)
+                        } else if (orient === -1 && hit && valid(hit_2[0], hit_2[1] + 1)) {
+                            this.comp_random_shot(hit_2[0], hit_2[1] + 1)
+                        }else if (orient === -2 && hit && hit && valid(hit_2[0] + 1,hit_2[1])) {
                             this.comp_random_shot(hit_2[0] + 1,hit_2[1])
-                        }else if (orient === +2 && hit) {
+                        }else if (orient === +2 && hit && valid(hit_2[0] - 1, hit_2[1])) {
                             this.comp_random_shot(hit_2[0] - 1, hit_2[1])
                         } else {
                             orient = 0
+                        hit_2 = this.orient_detection(hit_1)
                         }
 
                 } else {
                     orient = 0
-                    hit_2 = []
                     this.first_hit = []
+                    this.second_hit = []
                     this.comp_random_shot(-1, -1)
+                }
+            },
+            orient_detection (hit_1) {
+                let hit_2 = []
+                console.log("MISS... AIMING...hit_1:", hit_1)
+                if (this.shot_validate(hit_1[0] - 1, hit_1[1])) {
+                    this.comp_random_shot(hit_1[0] - 1, hit_1[1])
+                    hit_2.push(hit_1[0] - 1, hit_1[1])
+                    console.log("2 ^up^")
+                    return hit_2
+                } else if (this.shot_validate(hit_1[0], hit_1[1] + 1)) {
+                    this.comp_random_shot(hit_1[0], hit_1[1] + 1)
+                    hit_2.push(hit_1[0], hit_1[1] + 1)
+                    console.log("2>>right")
+                    return hit_2
+                } else if (this.shot_validate(hit_1[0] , hit_1[1] - 1)) {
+                    this.comp_random_shot(hit_1[0], hit_1[1] - 1)
+                    hit_2.push(hit_1[0], hit_1[1] - 1)
+                    console.log("left<<2")
+                    return hit_2
                 }
             },
             comp_random_shot (posX, posY) {
@@ -415,6 +429,13 @@
             }
         },
         watch: {
+            explored_cells_prop: function () {
+                let exsp_cell = this.explored_cells_prop;
+                for (let i = 0; i < exsp_cell.length; i++){
+                    this.shot_map.push(exsp_cell[i])
+                }
+                console.log("WOW WOW", this.shot_map ,"WOW!!!!")
+            },
             player_shot_XY: function () {
                 let length = this.ship_map.length,
                     x = this.player_shot_XY.x,
@@ -466,12 +487,13 @@
                     cell = this.battlefield[x][y];
 
                     if (cell.ship) {
-
+                        this.loss = false
+                        console.log("LOSS FALSE!!!", this.loss)
                         cell.hit = true
                         cell.ship = false
                         cell.invisible = false
                         this.$emit('message', "Hit!!!")
-                        this.loss = false
+
 
                     for (let i = 0; i < length; i++) {
                         let pos = this.ship_map[i]
@@ -480,15 +502,19 @@
                             if (x === pos.positions[j][0] &&
                                 y === pos.positions[j][1]) {
                                 pos.damage.push([x, y])
+
+                                if (pos.positions.length === pos.damage.length) {
+                                    let x = pos.positions[0][0],
+                                        y = pos.positions[0][1];
+                                    pos.loss = true
+                                    this.loss = true
+                                    console.log("LOSSTRUE!!!", this.loss)
+                                    console.log("posit", pos.positions.length, "damage",pos.damage.length)
+                                    this.shipmark(x, y, pos.positions.length, pos.orient, false, "explored", "hit", false, true, false, true)
+                                }
                             }
                         }
-                        if (pos.positions.length === pos.damage.length) {
-                            let x = pos.positions[0][0],
-                                y = pos.positions[0][1];
-                            pos.loss = true
-                            this.loss = true
-                            this.shipmark(x, y, pos.positions.length, pos.orient, false, "explored", "hit", false, true, false, true)
-                        }
+
                     }
                         if (this.end_game()) {
                             this.context.game_status.winner = "Compukter wins!!!"
@@ -496,25 +522,18 @@
                             this.context.game_status.player_move = false
                             this.context.game_status.win = true
                         } else {
-                            setTimeout(() => {
-                                this.$emit('comp_shot_AI',  {loss: this.loss, hit: true} )
-                            }, 1000)
-                            setTimeout(() => {this.$emit('shot_cpu')}, 1200)
+
+                            this.$emit('comp_shot_AI',  {loss: this.loss, hit: true})
+                            setTimeout(() => {this.$emit('shot_cpu')}, 2000)
 
                         }
                 } else {
                     cell.disabled = false
                     cell.miss = true
                     this.$emit('message', "Miss...")
-                        setTimeout(() => {
-                            this.$emit('comp_shot_AI',  {loss: this.loss, hit: false})
-                        }, 1000)
+                    this.$emit('comp_shot_AI',  {loss: this.loss, hit: false})
                     setTimeout( ()=>{  this.move_switch()},1000)
                 }
-            },
-            explored_cells:function () {
-                this.shot_map.push(this.explored_cells)
-                console.log(this.shot_map)
             }
         }
     }

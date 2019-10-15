@@ -9,7 +9,7 @@
                                          @shot_cpu="$refs.battle.comp_shot()"
                                          :context="game_condition()"
                                          :player_shot_XY="player_shot_coord"
-                                         :explored_cells="explored_cells"
+                                         :explored_cells_prop="explored_cells"
                                          :comp_shot_AI="comp_shot_AI"/>
     </div>
     <div class="Status_table" > <Status_table ref="status" :context="game_condition()"
@@ -84,7 +84,7 @@ export default {
     },
     explored_cells_emit(event){
       this.explored_cells = event
-      console.log("Explored cells", event)
+
     }
 
 
