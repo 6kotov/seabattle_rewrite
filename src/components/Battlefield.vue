@@ -34,7 +34,7 @@
                 previous_hit:[3,5],
                 first_hit:[],
                 second_hit:[],
-                orient: 0,
+                orient: "0",
                 explored_cells:[]
             }
         },
@@ -289,90 +289,90 @@
                     y = this.previous_hit[1],
                     hit =  this.hit,
                     hit_1 = this.first_hit,
-                    hit_2 = this.second_hit,
-                    valid = this.shot_validate;
-
-
-                this.$log.debug("X= ", x , "Y= ", y)
-                this.$log.debug("Props", "HIT: ", this.comp_shot_AI.hit,"LOSS:",this.comp_shot_AI.loss )
+                    hit_2 = this.second_hit;
 
                 if (! this.comp_loss) {
-                    if (orient === 0 && hit && hit_2.length === 0) {
+
+                    if (orient ===  "0" && hit && hit_2.length === 0) {
                         hit_1.push(x,y)
-                        this.$log.debug("AIMING..." ,"hit_1",hit_1)
-                        hit_2 = this.orient_detection (hit_1)
-                    } else if (orient === 0 && !hit) {
-                        this.$log.debug("MISS... AIMING...hit_1:", hit_1)
-                        hit_2 = this.orient_detection (hit_1)
-                    } else if (orient === 0 ){
-
-                        if (hit_1[0] === hit_2[0] && hit_1[1] > hit_2[1]) {
-                            orient = -1
-                            this.$log.debug("orient right ")
-                        } else if (hit_1[0] === hit_2[0] && hit_1[1] < hit_2[1]) {
-                            orient = +1
-                            this.$log.debug("orient left ")
-                        } else if (hit_1[0] < hit_2[0] &&hit_1[1] === hit_2[1]) {
-                            orient = -2
-                            this.$log.debug("orient down")
-                        } else if (hit_1[0] > hit_2[0] && hit_1[1] === hit_2[1]) {
-                            orient = +2
-                            this.$log.debug("orient up")
-                        }
+                        this.second_hit = this.shelling(hit_1)
+                    } else if (orient ===  "0" && !hit) {
+                        this.second_hit = this.shelling(hit_1)
+                    } else if (orient === "0" ) {
+                        orient = this.orient_detector( hit_1[0], hit_1[1], hit_2[0], hit_2[1])
                     }
 
-                    if (orient === +1 && hit && valid(hit_2[0], hit_2[1] - 1)) {
-                        this.comp_random_shot(hit_2[0], hit_2[1] - 1)
-                    } else if (orient === -1 && hit && valid(hit_2[0], hit_2[1] + 1)) {
-                        this.comp_random_shot(hit_2[0], hit_2[1] + 1)
-                    }else if (orient === -2 && hit && valid(hit_2[0] + 1,hit_2[1])) {
-                        this.comp_random_shot(hit_2[0] + 1,hit_2[1])
-                    }else if (orient === +2 && hit && valid(hit_2[0] - 1, hit_2[1])) {
-                        this.comp_random_shot(hit_2[0] - 1, hit_2[1])
-                    } else if (orient !== 0){
-                        orient = 0
-                        hit_2 = this.orient_detection(hit_1)
-                    }
+                this.aimed_shot(orient, hit, x, y, hit_1)
 
                 } else {
-                    orient = 0
+                    this.orient = "0"
                     this.first_hit = []
                     this.second_hit = []
                     this.comp_random_shot(-1, -1)
                 }
             },
-            orient_detection (hit_1) {
+
+            shelling (hit_1) {
                 let hit_2 = [],
+
                     valid = this.shot_validate;
                 if (valid(hit_1[0] + 1, hit_1[1])) {
                     this.comp_random_shot(hit_1[0] + 1, hit_1[1])
                     hit_2.push(hit_1[0] + 1, hit_1[1])
-                    this.$log.debug("1!$!down")
+
                 } else if (this.shot_validate(hit_1[0] - 1, hit_1[1])) {
                     this.comp_random_shot(hit_1[0] - 1, hit_1[1])
                     hit_2.push(hit_1[0] - 1, hit_1[1])
-                    this.$log.debug("2 ^up^")
-                    return hit_2
+
                 } else if (this.shot_validate(hit_1[0], hit_1[1] + 1)) {
                     this.comp_random_shot(hit_1[0], hit_1[1] + 1)
                     hit_2.push(hit_1[0], hit_1[1] + 1)
-                    this.$log.debug("2>>right")
-                    return hit_2
+
                 } else if (this.shot_validate(hit_1[0] , hit_1[1] - 1)) {
                     this.comp_random_shot(hit_1[0], hit_1[1] - 1)
                     hit_2.push(hit_1[0], hit_1[1] - 1)
-                    this.$log.debug("left<<2")
-                    return hit_2
+
+                }
+                return hit_2
+            },
+            orient_detector (x_1 , y_1 , x_2, y_2) {
+                let orient = "0"
+                if (x_1 === x_2 && y_1 > y_2) {
+                    orient = "left"
+                } else if (x_1 === x_2 && y_1 < y_2) {
+                    orient = "right"
+                } else if (x_1 < x_2 &&y_1 === y_2) {
+                    orient = "down"
+                } else if (x_1[0] > x_2[0] && y_1[1] === y_2[1]) {
+                    orient = "up"
+                }
+                this.orient = orient
+                return orient
+            },
+            aimed_shot(orient, hit, x, y, hit_1) {
+                let valid = this.shot_validate;
+                if (orient === "left" && hit && valid(x, y - 1)) {
+                    this.comp_random_shot(x, y - 1)
+                } else if (orient === "right" && hit && valid(x, y + 1)) {
+                    this.comp_random_shot(x, y + 1)
+                }else if (orient === "down" && hit && valid(x + 1,y)) {
+                    this.comp_random_shot(x + 1,y)
+                }else if (orient === "up" && hit && valid(x - 1, y)) {
+                    this.comp_random_shot(x - 1, y)
+                } else if (orient !== "0"){
+                    this.orient = "0"
+                    this.second_hit = this.shelling(hit_1)
                 }
             },
-            comp_random_shot (posX, posY) {
+
+            comp_random_shot (posX, posY, ) {
                 let done = false;
+
                 while (!done) {
                     let x = posX === -1 ? this.get_random(9): posX;
                     let y = posY === -1 ? this.get_random(9): posY;
 
                     if (this.shot_validate(x, y)) {
-                        this.$log.debug("emit shot xy",x,y)
                         this.$emit('comp_shot_coordinates', {x: x, y: y})
                         this.shot_map.push([x, y])
                         this.previous_hit = []
@@ -383,21 +383,16 @@
             },
             shot_validate: function (x,y) {
                 let length = this.shot_map.length;
-                this.$log.debug("Validating>>", x , y)
-                this.$log.debug(this.shot_map)
 
                 for (let i=0; i < length; i++ ) {
 
                     if (x > 9 || x < 0 || y > 9 || y < 0) {  //rule for computer aiming function
-                        this.$log.debug("SHOT DENIED! x||y >||< 0!!!")
                         return false
                     } else if (x === this.shot_map[i][0] &&
                          y === this.shot_map[i][1]) {
-                        this.$log.debug("SHOT DENIED!")
                         return false
                      }
                 }
-                this.$log.debug("SHoT allow!")
                 return true
             },
             move_switch() {
@@ -468,8 +463,6 @@
                     y = this.comp_shot_XY.y,
                     cell = this.battlefield[x][y];
 
-                this.$log.debug(this.battlefield)
-                this.$log.debug("incoming!!!!!!!!!!",x,y)
 
                     if (cell.ship) {
                         this.loss = false
@@ -504,7 +497,7 @@
                         } else {
 
                             this.$emit('comp_shot_AI',  {loss: this.loss, hit: true})
-                            setTimeout(() => {this.$emit('shot_cpu')}, 2000)
+                            setTimeout(() => {this.$emit('shot_cpu')}, 1000)
 
                         }
                 } else {

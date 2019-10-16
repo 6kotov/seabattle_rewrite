@@ -78,32 +78,32 @@ props:["rowindex","colindex","battlefield"],
     height: 40px;
   }
   .ship  {
-    background-color: #315358;
-    color: rgb(106, 255, 1);
+    background-color: rgba(49, 83, 88, 0.67);
+    color: rgba(106, 255, 1, 0);
     border: 1px solid #e58700;
   }
   .invisible_ship {
-    background-color: rgba(93, 255, 253, 0.21);
+    background-color: rgba(93, 255, 253, 0.2);
     color: rgba(1, 0, 55, 0);
   }
   .disabled  {
     background-color: rgba(93, 255, 253, 0.2);
-    color: rgb(106, 255, 1);
+    color: rgba(106, 255, 1, 0);
     border: 1px solid rgb(0, 0, 0);
   }
   .hit  {
     background-color: #ff0000;
-    color: rgb(0, 9, 169);
+    color: rgba(0, 9, 169, 0);
     border: 1px solid black;
   }
   .miss  {
     background-color: rgb(157, 117, 0);
-    color: rgb(93, 255, 253);
+    color: rgba(93, 255, 253, 0);
     border: 1px solid rgb(0, 0, 0);
   }
   .explored  {
     background-color: rgb(10, 13, 103);
-    color: rgb(93, 255, 253);
+    color: rgba(93, 255, 253, 0);
     border: 1px solid rgb(0, 0, 0);
   }
 </style>
