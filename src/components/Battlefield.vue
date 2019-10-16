@@ -162,7 +162,7 @@
                             this.$emit('message', "inaccessible coordinates")
                             setTimeout( ()=>{ this.$emit('message', " ")},1000)
                         }
-                    }else if (this.context.game_status.player_move) {
+                    } else if (this.context.game_status.player_move) {
                         this.$emit ('mouse_shot_coordinates', {x: x, y: y} )
                     }
                 } else if (z === 0) {
@@ -284,8 +284,7 @@
                 this.hit = this.comp_shot_AI.hit
                 this.comp_loss = this.comp_shot_AI.loss
 
-                let orient = this.orient,
-                    x = this.previous_hit[0],
+                let x = this.previous_hit[0],
                     y = this.previous_hit[1],
                     hit =  this.hit,
                     hit_1 = this.first_hit,
@@ -293,16 +292,16 @@
 
                 if (! this.comp_loss) {
 
-                    if (orient ===  "0" && hit && hit_2.length === 0) {
+                    if (this.orient === "0" && hit && hit_2.length === 0) {
                         hit_1.push(x,y)
-                        this.second_hit = this.shelling(hit_1)
-                    } else if (orient ===  "0" && !hit) {
-                        this.second_hit = this.shelling(hit_1)
-                    } else if (orient === "0" ) {
-                        orient = this.orient_detector( hit_1[0], hit_1[1], hit_2[0], hit_2[1])
+                        this.second_hit = this.shelling()
+                    } else if (this.orient === "0" && !hit) {
+                        this.second_hit = this.shelling()
+                    } else if (this.orient === "0") {
+                        this.orient = this.orient_detector( hit_1[0], hit_1[1], hit_2[0], hit_2[1])
                     }
 
-                this.aimed_shot(orient, hit, x, y, hit_1)
+                    if (this.orient !== "0") { this.aimed_shot(x, y) }
 
                 } else {
                     this.orient = "0"
@@ -312,60 +311,50 @@
                 }
             },
 
-            shelling (hit_1) {
+            shelling () {
                 let hit_2 = [],
+                    x = this.first_hit[0],
+                    y = this.first_hit[1],
+                    valid = this.shot_validate,
+                    shot = this.comp_random_shot;
 
-                    valid = this.shot_validate;
-                if (valid(hit_1[0] + 1, hit_1[1])) {
-                    this.comp_random_shot(hit_1[0] + 1, hit_1[1])
-                    hit_2.push(hit_1[0] + 1, hit_1[1])
-
-                } else if (this.shot_validate(hit_1[0] - 1, hit_1[1])) {
-                    this.comp_random_shot(hit_1[0] - 1, hit_1[1])
-                    hit_2.push(hit_1[0] - 1, hit_1[1])
-
-                } else if (this.shot_validate(hit_1[0], hit_1[1] + 1)) {
-                    this.comp_random_shot(hit_1[0], hit_1[1] + 1)
-                    hit_2.push(hit_1[0], hit_1[1] + 1)
-
-                } else if (this.shot_validate(hit_1[0] , hit_1[1] - 1)) {
-                    this.comp_random_shot(hit_1[0], hit_1[1] - 1)
-                    hit_2.push(hit_1[0], hit_1[1] - 1)
-
+                if (valid(x + 1, y)) {
+                    shot(x + 1, y)
+                    hit_2.push(x + 1, y)
+                } else if (valid(x - 1, y)) {
+                    shot(x - 1, y)
+                    hit_2.push(x - 1, y)
+                } else if (valid(x, y + 1)) {
+                    shot(x, y + 1)
+                    hit_2.push(x, y + 1)
+                } else if (valid(x , y - 1)) {
+                    shot(x, y - 1)
+                    hit_2.push(x, y - 1)
                 }
                 return hit_2
             },
+
             orient_detector (x_1 , y_1 , x_2, y_2) {
-                let orient = "0"
-                if (x_1 === x_2 && y_1 > y_2) {
-                    orient = "left"
-                } else if (x_1 === x_2 && y_1 < y_2) {
-                    orient = "right"
-                } else if (x_1 < x_2 &&y_1 === y_2) {
-                    orient = "down"
-                } else if (x_1[0] > x_2[0] && y_1[1] === y_2[1]) {
-                    orient = "up"
-                }
-                this.orient = orient
-                return orient
+                if (x_1 === x_2) { return y_1 < y_2 ? "right" : "left"}
+                if (y_1 === y_2) { return x_1 < x_2 ? "down" : "up"}
+                return "0"
             },
-            aimed_shot(orient, hit, x, y, hit_1) {
-                let valid = this.shot_validate;
-                if (orient === "left" && hit && valid(x, y - 1)) {
-                    this.comp_random_shot(x, y - 1)
-                } else if (orient === "right" && hit && valid(x, y + 1)) {
-                    this.comp_random_shot(x, y + 1)
-                }else if (orient === "down" && hit && valid(x + 1,y)) {
-                    this.comp_random_shot(x + 1,y)
-                }else if (orient === "up" && hit && valid(x - 1, y)) {
-                    this.comp_random_shot(x - 1, y)
-                } else if (orient !== "0"){
-                    this.orient = "0"
-                    this.second_hit = this.shelling(hit_1)
-                }
+            aimed_shot(x, y) {
+                let valid = this.shot_validate,
+                hit = this.hit,
+                shot = this.comp_random_shot,
+                orient = this.orient;
+
+                if (hit && orient === "left" && valid(x, y - 1)) {return  shot(x, y - 1) }
+                if (hit && orient === "right" && valid(x, y + 1)) {return shot(x, y + 1) }
+                if (hit && orient === "down" && valid(x + 1, y)) {return shot(x + 1, y) }
+                if (hit && orient === "up" && valid(x - 1, y)) {return shot(x - 1, y) }
+
+                this.orient = "0"
+                this.second_hit = this.shelling()
             },
 
-            comp_random_shot (posX, posY, ) {
+            comp_random_shot (posX, posY,) {
                 let done = false;
 
                 while (!done) {
@@ -462,7 +451,6 @@
                     x = this.comp_shot_XY.x,
                     y = this.comp_shot_XY.y,
                     cell = this.battlefield[x][y];
-
 
                     if (cell.ship) {
                         this.loss = false
