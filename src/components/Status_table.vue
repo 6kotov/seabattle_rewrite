@@ -21,10 +21,13 @@ export default {
       this.context.game_status.ship_placing = false
       this.context.game_status.player_move = true
         this.$emit('comp_shot_AI', {loss: true, hit: false} )
+        this.$emit('move_turn_pl',"move_turn" )
+
       } else if (this.ship_field_player.length === 10){
         this.context.game_status.ship_placing = false
         this.context.game_status.computer_move = true
         this.$emit('comp_shot_AI', true)
+        this.$emit('move_turn_comp', "move_turn" )
         this.$emit('shot_cpu')
       } else if (this.ship_field_player.length < 10 &&
               this.ship_field_player.length > 0) {

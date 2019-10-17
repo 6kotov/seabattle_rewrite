@@ -2,11 +2,13 @@
   <div  class="background">
 
     <div class="Battlefield">
-     <b>--Compukter --</b>  <Battlefield ref="battle"
+     <b>--Compukter --</b>  <Battlefield ref="battle"  :class = "move_turn_pl"
                                          @comp_shot_coordinates="comp_shot_coordinates"
                                          @mouse_shot_coordinates="player_shot_coordinates($event)"
                                          @message="message_emit($event)"
                                          @shot_cpu="$refs.battle.comp_shot()"
+                                         @move_turn_pl="move_turn_pl_emit($event)"
+                                         @move_turn_comp="move_turn_comp_emit($event)"
                                          :context="game_condition()"
                                          :player_shot_XY="player_shot_coord"
                                          :explored_cells_prop="explored_cells"
@@ -17,24 +19,27 @@
                                               @message="message_emit($event)"
                                               @shot_cpu="$refs.battle. comp_random_shot(-1, -1)"
                                               @comp_shot_AI="comp_shot_AI_emit($event)"
+                                              @move_turn_pl="move_turn_pl_emit($event)"
+                                              @move_turn_comp="move_turn_comp_emit($event)"
                                               :ship_field_player="ship_field_player"/>
       <button v-if="game_status.ship_placing" @click="$refs.battle.ship_draw(true) &
                                                       $refs.status.start_game()">
                                                       Start game </button>
       <button v-if="game_status.ship_placing" @click="$refs.battle_cpu.ship_draw(false)">Random</button>
     </div>
-    <div class="Battlefield_cpu">
-      <b>--  Player 1 --</b> <Battlefield ref="battle_cpu"
+    <div class="Battlefield_cpu" >
+      <b>--  Player 1 --</b> <Battlefield ref="battle_cpu" :class = "move_turn_comp"
                                           @player_shot_coordinates="player_shot_coordinates($event)"
                                           @ship_field="ship_field($event)"
                                           @message="message_emit($event)"
                                           @comp_shot_AI="comp_shot_AI_emit($event)"
                                           @shot_cpu="$refs.battle.comp_shot()"
                                           @explored_cells="explored_cells_emit($event)"
+                                          @move_turn_pl="move_turn_pl_emit($event)"
+                                          @move_turn_comp="move_turn_comp_emit($event)"
                                           :context="game_condition()"
                                           :comp_shot_XY="comp_shot_coord"/>
       <button @click="$refs.battle_cpu.player_shot(-1,-1)" >-Random shot-</button>
-
 
   </div>
 
@@ -74,7 +79,9 @@ export default {
       message:"",
       ship_field_player:"",
       comp_shot_AI:"",
-      explored_cells:""
+      explored_cells:"",
+      move_turn_comp: "",
+      move_turn_pl: ""
     }
   },
   methods: {
@@ -99,7 +106,14 @@ export default {
     },
     explored_cells_emit(event){
       this.explored_cells = event
-
+    },
+    move_turn_comp_emit(event){
+      this.move_turn_comp = event
+      this.$log.debug("move_turn_comp", this.move_turn_comp)
+    },
+    move_turn_pl_emit(event){
+      this.move_turn_pl = event
+      this.$log.debug("move_turn_pl",this.move_turn_pl)
     }
 
 
@@ -154,6 +168,9 @@ export default {
     min-height: 700px;
     background-image: url('images/Background.jpg');
     background-size:cover;
+  }
+  .move_turn {
+    border: solid 10px rgba(28, 222, 114, 0.7);
   }
 
 </style>
