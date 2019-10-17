@@ -1,6 +1,6 @@
 <template>
   <div>
-<Row @mouse_act="mouse_mark"  :battlefield="battlefield"
+<Row class="row" @mouse_act="mouse_mark"  :battlefield="battlefield"
      :colindex="column" v-for="column in columns"
      :key="column.id "/>
     <TextInput v-if="context.game_status.ship_placing" @position="shipmark" />
@@ -62,59 +62,38 @@
             shipmark: function (x, y, shipsize, orient, invisible, value1, value2, ship_add, condition, validate, val_1_condition) {
                 let coordinates = [];
                 if (this.cell_validate(x, y, shipsize, orient, validate)) {
-                    if (orient === 0) {
-                        let startX = x > 0 ? x - 1 : x;
-                        let startY = y > 0 ? y - 1 : y;
-                        let stopX = Math.min(9, x + shipsize);
-                        let stopY = y < 9 ? y + 1 : y;
-                        for (let i = startX; i <= stopX; i++) {
-                            for (let j = startY; j <= stopY; j++) {
-                                this.cellmark(i, j, value1, val_1_condition)
-                                if (value1 === "explored"){
-                                    this.explored_cells.push([i,j])
-                                }
-                            }
-                        }
-                        let start = x;
-                        let stop = x + shipsize;
 
-                        for (let i = start; i < stop; i++) {
-                            if (!invisible) {
-                                this.cellmark(i, y, value2, condition)
-                                coordinates.push([i, y])
-                            } else {
-                                this.cellmark(i, y, value2, true)
-                                this.cellmark(i, y, "invisible", true)
-                                coordinates.push([i, y])
-                            }
-                        }
-                    } else {
-                        let startX = x > 0 ? x - 1 : x;
-                        let startY = y > 0 ? y - 1 : y;
-                        let stopX = x < 9 ? x + 1 : x;
-                        let stopY = Math.min(9, y + shipsize)
-                        for (let i = startX; i <= stopX; i++) {
-                            for (let j = startY; j <= stopY; j++) {
-                                this.cellmark(i, j, value1, val_1_condition)
-                                if (value1 === "explored") {
-                                    this.explored_cells.push([i,j])
-                                }
-                            }
-                        }
-                        let start = y;
-                        let stop = y + shipsize;
-
-                        for (let i = start; i < stop; i++) {
-                            if (!invisible) {
-                                this.cellmark(x, i, value2, condition)
-                                coordinates.push([x, i])
-                            } else {
-                                this.cellmark(x, i, value2, true)
-                                this.cellmark(x, i, "invisible", true)
-                                coordinates.push([x, i])
+                    let startX = x > 0 ? x - 1 : x;
+                    let startY = y > 0 ? y - 1 : y;
+                    let stopX = orient === 0 ? Math.min(9, x + shipsize): x < 9 ? x + 1 : x;
+                    let stopY =  orient === 0 ? y < 9 ? y + 1 : y : Math.min(9, y + shipsize);
+                    for (let i = startX; i <= stopX; i++) {
+                        for (let j = startY; j <= stopY; j++) {
+                            this.cellmark(i, j, value1, val_1_condition)
+                            if (value1 === "explored"){
+                                this.explored_cells.push([i,j])
                             }
                         }
                     }
+
+                    let z = orient === 0 ? x : y
+                    let start = z;
+                    let stop = z + shipsize;
+
+                    for (let i = start; i < stop; i++) {
+                        let a = this.invertor(x, y, i, orient).x,
+                        b = this.invertor(x, y, i, orient).y;
+
+                        if (!invisible) {
+                            this.cellmark(a, b, value2, condition)
+                            coordinates.push([a, b])
+                        } else {
+                            this.cellmark(a, b, value2, true)
+                            this.cellmark(a, b, "invisible", true)
+                            coordinates.push([a, b])
+                        }
+                    }
+
                     if (ship_add) {
                         this.ship_map.push(Ship.ShipsX(shipsize, this, coordinates, orient))
                         this.counter ++
@@ -128,6 +107,11 @@
                     this.$emit('message', "inaccessible coordinates")
                 }
             },
+
+            invertor (x, y, i, orient) {
+                return orient === 0 ? {x:i, y:y} : {x:x, y:i}
+            },
+
             mouse_mark (x, y, z) {
              let index = this.counter,
              ships_left = this.ships_data;
@@ -198,9 +182,8 @@
             },
             X_cell_validate: function (x, y, shipsize, orient) {
 
-                let startX = x,
-                    stopX = x + shipsize;
-                for (let i = startX; i < stopX; i++) {
+                let stopX = x + shipsize;
+                for (let i = x; i < stopX; i++) {
                     let cell = orient === 0 ? this.battlefield[i][y] : this.battlefield[y][i];
                     if (stopX > 10 ) {
                         return false
@@ -251,8 +234,6 @@
             comp_shot () {
                 this.hit = this.comp_shot_AI.hit
                 this.comp_loss = this.comp_shot_AI.loss
-                this.$emit('move_turn_comp', "" )
-                this.$emit('move_turn_pl', "move_turn" )
 
                 let x = this.previous_hit[0],
                     y = this.previous_hit[1],
@@ -261,7 +242,6 @@
                     hit_2 = this.second_hit;
 
                 if (! this.comp_loss) {
-
                     if (this.orient === "0" && hit && hit_2.length === 0) {
                         hit_1.push(x,y)
                         this.second_hit = this.shelling()
@@ -282,26 +262,15 @@
             },
 
             shelling () {
-                let hit_2 = [],
-                    x = this.first_hit[0],
+                let x = this.first_hit[0],
                     y = this.first_hit[1],
                     valid = this.shot_validate,
                     shot = this.comp_random_shot;
 
-                if (valid(x + 1, y)) {
-                    shot(x + 1, y)
-                    hit_2.push(x + 1, y)
-                } else if (valid(x - 1, y)) {
-                    shot(x - 1, y)
-                    hit_2.push(x - 1, y)
-                } else if (valid(x, y + 1)) {
-                    shot(x, y + 1)
-                    hit_2.push(x, y + 1)
-                } else if (valid(x , y - 1)) {
-                    shot(x, y - 1)
-                    hit_2.push(x, y - 1)
-                }
-                return hit_2
+                if (valid(x + 1, y)) { shot(x + 1, y); return [x + 1, y] }
+                if (valid(x - 1, y)) { shot(x - 1, y); return [x - 1, y] }
+                if (valid(x, y + 1)) { shot(x, y + 1); return [x, y + 1] }
+                if (valid(x, y - 1)) { shot(x, y - 1); return [x, y - 1] }
             },
 
             orient_detector (x_1 , y_1 , x_2, y_2) {
@@ -411,11 +380,13 @@
                     cell.miss = true
                     this.$emit('message', "Miss...")
                         setTimeout( ()=>{ this.move_switch()},1200)
-                        setTimeout( ()=>{ this.$emit('shot_cpu')},1300)
-                        this.$emit('move_turn_comp', "move_turn" )
-                        this.$emit('move_turn_pl', " " )
-                        }
-                },
+                        setTimeout( ()=>{
+                            this.$emit('shot_cpu')
+                            this.$emit('move_turn_comp', "move_allow" )
+                            this.$emit('move_turn_pl', "move_denied " )
+                        },1300)
+                }
+            },
 
             comp_shot_XY: function () {
                 let length = this.ship_map.length,
@@ -448,7 +419,7 @@
                         }
                     }
                         if (this.end_game()) {
-                            this.context.game_status.winner = "Compukter wins!!!"
+                            this.context.game_status.winner = "Computer wins!!!"
                             this.context.game_status.computer_move = false
                             this.context.game_status.player_move = false
                             this.context.game_status.win = true
@@ -461,9 +432,12 @@
                     cell.miss = true
                     this.$emit('message', "Miss...")
                     this.$emit('comp_shot_AI',  {loss: this.loss, hit: false})
-                    setTimeout( ()=>{  this.move_switch()},1000)
-                        this.$emit('move_turn_comp', "" )
-                        this.$emit('move_turn_pl', "move_turn" )
+                    setTimeout( ()=>{
+                        this.move_switch()
+                        this.$emit('move_turn_comp', "move_denied" )
+                        this.$emit('move_turn_pl', "move_allow" )
+                    },1000)
+
                 }
             }
         }
@@ -473,5 +447,7 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
+.row {
+    display: inline-grid;
+}
 </style>

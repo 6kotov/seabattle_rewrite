@@ -2,7 +2,7 @@
   <div  class="background">
 
     <div class="Battlefield">
-     <b>--Compukter --</b>  <Battlefield ref="battle"  :class = "move_turn_pl"
+     <b>--Computer --</b>  <Battlefield ref="battle"  :class = "move_turn_pl"
                                          @comp_shot_coordinates="comp_shot_coordinates"
                                          @mouse_shot_coordinates="player_shot_coordinates($event)"
                                          @message="message_emit($event)"
@@ -80,8 +80,8 @@ export default {
       ship_field_player:"",
       comp_shot_AI:"",
       explored_cells:"",
-      move_turn_comp: "",
-      move_turn_pl: ""
+      move_turn_comp: "move_denied",
+      move_turn_pl: "move_denied"
     }
   },
   methods: {
@@ -109,11 +109,9 @@ export default {
     },
     move_turn_comp_emit(event){
       this.move_turn_comp = event
-      this.$log.debug("move_turn_comp", this.move_turn_comp)
     },
     move_turn_pl_emit(event){
       this.move_turn_pl = event
-      this.$log.debug("move_turn_pl",this.move_turn_pl)
     }
 
 
@@ -168,9 +166,13 @@ export default {
     min-height: 700px;
     background-image: url('images/Background.jpg');
     background-size:cover;
+    display: inline-table;
   }
-  .move_turn {
+  .move_allow {
     border: solid 10px rgba(28, 222, 114, 0.7);
+  }
+  .move_denied {
+    border: solid 10px rgb(133, 134, 133);
   }
 
 </style>

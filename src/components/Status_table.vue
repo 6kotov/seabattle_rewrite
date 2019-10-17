@@ -3,7 +3,7 @@
   <div  v-if="context.game_status.ship_placing" >Ship placing <br>{{message}} <br> </div>
   <div v-else-if="context.game_status.player_move" >Player move <br>{{message}} </div>
   <div  v-else-if="context.game_status.computer_move" >Computer move  <br>{{message}}</div>
-  <div  class="game_end" v-else-if="context.game_status.win" >{{context.game_status.winner}} </div>
+  <div  v-else-if="context.game_status.win" >{{context.game_status.winner}} </div>
   </div>
 </template>
 
@@ -21,13 +21,15 @@ export default {
       this.context.game_status.ship_placing = false
       this.context.game_status.player_move = true
         this.$emit('comp_shot_AI', {loss: true, hit: false} )
-        this.$emit('move_turn_pl',"move_turn" )
+        this.$emit('move_turn_comp', "move_denied" )
+        this.$emit('move_turn_pl', "move_allow" )
 
       } else if (this.ship_field_player.length === 10){
         this.context.game_status.ship_placing = false
         this.context.game_status.computer_move = true
         this.$emit('comp_shot_AI', true)
-        this.$emit('move_turn_comp', "move_turn" )
+        this.$emit('move_turn_comp', "move_allow" )
+        this.$emit('move_turn_pl', "move_denied" )
         this.$emit('shot_cpu')
       } else if (this.ship_field_player.length < 10 &&
               this.ship_field_player.length > 0) {
@@ -44,12 +46,5 @@ export default {
 <style scoped>
     div {
         margin: 5px;
-    }
-    .game_end {
-      width: 300px;
-      height: 150px;
-      font-size: 36px;
-      position: relative;
-      z-index: 1000;
     }
 </style>
