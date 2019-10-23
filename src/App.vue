@@ -22,13 +22,30 @@
                                               @move_turn_pl="move_turn_pl_emit($event)"
                                               @move_turn_comp="move_turn_comp_emit($event)"
                                               :ship_field_player="ship_field_player"/>
+
+      <button v-if="game_status.ship_placing" @click="$refs.battle_cpu.ship_draw(false)">
+        Random placing</button>
+
       <button v-if="game_status.ship_placing" @click="$refs.battle.ship_draw(true) &
-                                                      $refs.status.start_game()">
-                                                      Start game </button>
-      <button v-if="game_status.ship_placing" @click="$refs.battle_cpu.ship_draw(false)">Random</button>
+                                                      $refs.status.start_game('single')">
+                                                      Start singleplayer </button>
+
+      <button v-if="game_status.ship_placing" @click="$refs.status.start_game('multi')">
+                                                      Start multiplayer </button>
+
     </div>
+
+      <div class="name" v-if="game_status.name_enter">
+         <label for="textarea">Enter your name</label>
+              <textarea id="textarea" cols="20" rows="1"
+                        v-model="game_status.player_name"
+                         @keyup.enter="name_enter"></textarea>
+         <button  @click="name_enter" >Ok</button>
+
+      </div>
+
     <div class="Battlefield_cpu" >
-      <b>--  Player 1 --</b> <Battlefield ref="battle_cpu" :class = "move_turn_comp"
+      <b>-- {{game_status.player_name}} --</b> <Battlefield ref="battle_cpu" :class = "move_turn_comp"
                                           @player_shot_coordinates="player_shot_coordinates($event)"
                                           @ship_field="ship_field($event)"
                                           @message="message_emit($event)"
@@ -39,6 +56,7 @@
                                           @move_turn_comp="move_turn_comp_emit($event)"
                                           :context="game_condition()"
                                           :comp_shot_XY="comp_shot_coord"/>
+
       <button @click="$refs.battle_cpu.player_shot(-1,-1)" >-Random shot-</button>
 
   </div>
@@ -51,6 +69,7 @@ import Vue from 'vue'
 import Battlefield from './components/Battlefield.vue'
 import Game_status from './components/mixins/Game_status.js'
 import Status_table from './components/Status_table.vue'
+import Multiplayer from './components/mixins/Multiplayer.js'
 import VueLogger from 'vuejs-logger';
 
 
@@ -69,9 +88,10 @@ Vue.use(VueLogger, options);
 export default {
   components: {
     Battlefield,
-    Status_table
+    Status_table,
+
   },
-  mixins:[Game_status],
+  mixins:[Game_status, Multiplayer],
   data: function(){
     return {
       player_shot_coord:"",
@@ -112,6 +132,10 @@ export default {
     },
     move_turn_pl_emit(event){
       this.move_turn_pl = event
+    },
+    name_enter() {
+        this.game_status.name_enter = false;
+        this.game_status.ship_placing = true
     }
 
 
@@ -174,5 +198,20 @@ export default {
   .move_denied {
     border: solid 10px rgb(133, 134, 133);
   }
-
+  .name {
+      position: fixed;
+      z-index: 10000;
+      margin-top: 150px;
+      margin-left: -210px;
+      font-family: CricketLight, monospace;
+      font-size: 20px;
+      color: #fff602;
+      border: solid #060606;
+      background-color: darkcyan;
+      padding: 5px;
+      height: 100px;
+      width: 200px;
+      text-align: center;
+      display: inline-table;
+  }
 </style>

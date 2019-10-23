@@ -297,8 +297,9 @@
                 let done = false;
 
                 while (!done) {
-                    let x = posX === -1 ? this.get_random(9): posX;
-                    let y = posY === -1 ? this.get_random(9): posY;
+                    let x = posX === -1 ? this.get_random(9) : posX;
+                    let y = posY === -1 ? this.get_random(9) : posY;
+                    this.$log.debug(x, y)
 
                     if (this.shot_validate(x, y)) {
                         this.$emit('comp_shot_coordinates', {x: x, y: y})
@@ -309,6 +310,17 @@
                     }
                 }
             },
+
+            // comp_shoot_map(){
+            //     let map = [2,0,5,7,4,2,2,4,1,7,2,8,3,1,
+            //          0,2,8,2,7,1,0,6,3,9,1,3,6,8,6,0,9,
+            //          3,3,5,9,7,8,6,6,4,4,6,5,3,7,5,7,9],
+            //     coordinate = map.pop();
+            //
+            //     if (map.length > 0) {return {coordinate:coordinate}}
+            //
+            // },
+
             shot_validate: function (x,y) {
                 let length = this.shot_map.length;
 
@@ -399,6 +411,9 @@
                         cell.hit = true
                         cell.ship = false
                         cell.invisible = false
+                        this.explored_cells.push([x-1,y-1],[x+1,y+1],[x-1,y+1],[x+1,y-1])
+                        this.$emit("explored_cells", this.explored_cells)
+                        this.$log.debug(this.explored_cells)
 
                     for (let i = 0; i < length; i++) {
                         let pos = this.ship_map[i]

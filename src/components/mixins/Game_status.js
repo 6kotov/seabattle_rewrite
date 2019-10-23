@@ -2,11 +2,16 @@ export default {
     data() {
         return {
             game_status : {
-                ship_placing: true,
+                name_enter: true,
+                ship_placing: false,
+                single_player_mode:false,
+                multi_player_mode: false,
                 player_move: false,
                 computer_move: false,
                 win: false,
-                winner:""
+                winner:"",
+                player_name:"Player",
+                enemy_name:""
             }
         }
     }
