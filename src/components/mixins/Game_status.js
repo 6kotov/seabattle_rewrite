@@ -1,17 +1,18 @@
 export default {
-    data() {
+    data: function () {
         return {
             game_status : {
                 name_enter: true,
                 ship_placing: false,
-                single_player_mode:false,
+                single_player_mode:true,
                 multi_player_mode: false,
                 player_move: false,
                 computer_move: false,
+                enemy_move:false,
                 win: false,
                 winner:"",
                 player_name:"Player",
-                enemy_name:""
+                enemy_name: "Computer"
             }
         }
     }

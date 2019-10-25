@@ -1,5 +1,9 @@
 
 module.exports = {
   status: "waiting",
-  name: "Player"
+  name: "Inokentij",
+  move_turn: true,
+  reply:"loss",
+  x:"-1",
+  y:"-1"
 }

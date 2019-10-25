@@ -1,6 +1,9 @@
 
 module.exports = {
-  x: [5] ,
-  y: [6] ,
-  response: "MISS",
+  status: "waiting",
+  name: "Inokentij",
+  move_turn: true,
+  reply:"loss",
+  x:"-1",
+  y:"-1"
 }

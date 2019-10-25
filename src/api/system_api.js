@@ -35,12 +35,16 @@ export function load_catalog_info(performer, action) {
         .catch(default_error_handler)
 }
 
-export function send_game_info (performer, action) {
-    const whole_url = BACKEND_BASE_URL + $$.startswith(action, "/") ? action : "/" + action
-    Vue.$log.debug("send_Catalog. URL: '" + whole_url + "'")
-    return axios({url: whole_url, method: 'POST'})
+export function request_info (performer, path, obj) {
+    // const whole_url = BACKEND_BASE_URL + $$.startswith(path, "/") ? path : "/" + path
+    // const whole_url = "http://httpbin.org/post"
+    const whole_url = "http://192.168.0.104:5000/pre_game"
+    return axios.post(whole_url, obj).then((response) => performer(response.data))
+        .catch(default_error_handler)
+
 }
  export  default {
      load_game_info : DEV_MODE ? load_catalog_info_mock : load_catalog_info,
-     send_game_info
+      request_info : DEV_MODE ? request_info : load_catalog_info_mock
+     // request_info : DEV_MODE ? load_catalog_info_mock :request_info
  }

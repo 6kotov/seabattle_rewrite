@@ -21,7 +21,6 @@ export default {
       if (length < 10) {
         this.$emit('message', "Not enough ships to play!")
       } else if ( length === 10 && mode === "single") {
-        status.single_player_mode = true
         this.$emit('comp_shot_AI', {loss: true, hit: false})
 
         if (random === 1) {
@@ -30,7 +29,7 @@ export default {
           this.$emit('move_turn_comp', "move_denied")
           this.$emit('move_turn_pl', "move_allow")
 
-        } else if (this.ship_field_player.length === 10) {
+        } else {
           status.ship_placing = false
           status.computer_move = true
           this.$emit('move_turn_comp', "move_allow")
@@ -39,7 +38,8 @@ export default {
         }
       } else if (mode === "multi") {
         status.ship_placing = false
-        status.single_player_mode = true
+        status.single_player_mode = false
+        status.multi_player_mode = true
         this.context.start_game_net()
       }
     }

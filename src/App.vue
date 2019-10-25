@@ -2,11 +2,11 @@
   <div  class="background">
 
     <div class="Battlefield">
-     <b>--Computer --</b>  <Battlefield ref="battle"  :class = "move_turn_pl"
+     <b>--{{game_status.enemy_name}} --</b>  <Battlefield ref="enemy"  :class = "move_turn_pl"
                                          @comp_shot_coordinates="comp_shot_coordinates"
                                          @mouse_shot_coordinates="player_shot_coordinates($event)"
                                          @message="message_emit($event)"
-                                         @shot_cpu="$refs.battle.comp_shot()"
+                                         @shot_cpu="$refs.enemy.comp_shot()"
                                          @move_turn_pl="move_turn_pl_emit($event)"
                                          @move_turn_comp="move_turn_comp_emit($event)"
                                          :context="game_condition()"
@@ -14,20 +14,21 @@
                                          :explored_cells_prop="explored_cells"
                                          :comp_shot_AI="comp_shot_AI"/>
     </div>
+
     <div class="Status_table" > <Status_table ref="status" :context="game_condition()"
                                               :message="message"
                                               @message="message_emit($event)"
-                                              @shot_cpu="$refs.battle. comp_random_shot(-1, -1)"
+                                              @shot_cpu="$refs.enemy.comp_random_shot(-1, -1)"
                                               @comp_shot_AI="comp_shot_AI_emit($event)"
                                               @move_turn_pl="move_turn_pl_emit($event)"
                                               @move_turn_comp="move_turn_comp_emit($event)"
                                               :ship_field_player="ship_field_player"/>
 
-      <button v-if="game_status.ship_placing" @click="$refs.battle_cpu.ship_draw(false)">
+      <button v-if="game_status.ship_placing" @click="$refs.player.ship_draw(false)">
         Random placing</button>
 
-      <button v-if="game_status.ship_placing" @click="$refs.battle.ship_draw(true) &
-                                                      $refs.status.start_game('single')">
+      <button v-if="game_status.ship_placing" @click="$refs.status.start_game('single')
+                                                      &$refs.enemy.ship_draw(true)">
                                                       Start singleplayer </button>
 
       <button v-if="game_status.ship_placing" @click="$refs.status.start_game('multi')">
@@ -45,19 +46,20 @@
       </div>
 
     <div class="Battlefield_cpu" >
-      <b>-- {{game_status.player_name}} --</b> <Battlefield ref="battle_cpu" :class = "move_turn_comp"
+      <b>-- {{game_status.player_name}} --</b> <Battlefield ref="player" :class = "move_turn_comp"
                                           @player_shot_coordinates="player_shot_coordinates($event)"
                                           @ship_field="ship_field($event)"
                                           @message="message_emit($event)"
                                           @comp_shot_AI="comp_shot_AI_emit($event)"
-                                          @shot_cpu="$refs.battle.comp_shot()"
+                                          @shot_cpu="$refs.enemy.comp_shot()"
                                           @explored_cells="explored_cells_emit($event)"
                                           @move_turn_pl="move_turn_pl_emit($event)"
                                           @move_turn_comp="move_turn_comp_emit($event)"
+                                          @reply="enemy_reply($event)"
                                           :context="game_condition()"
                                           :comp_shot_XY="comp_shot_coord"/>
 
-      <button @click="$refs.battle_cpu.player_shot(-1,-1)" >-Random shot-</button>
+      <button @click="$refs.player.player_shot(-1,-1)" >-Random shot-</button>
 
   </div>
 
@@ -95,10 +97,12 @@ export default {
   data: function(){
     return {
       player_shot_coord:"",
+      net_player_shot_coord:"",
       comp_shot_coord:"",
       message:"",
       ship_field_player:"",
       comp_shot_AI:"",
+      enemy_reply_res:-1,
       explored_cells:"",
       move_turn_comp: "move_denied",
       move_turn_pl: "move_denied"
@@ -106,7 +110,8 @@ export default {
   },
   methods: {
     player_shot_coordinates: function (event) {
-      this.player_shot_coord = event
+       return this.game_status.single_player_mode ? this.player_shot_coord = event
+           : this.net_player_shot_coord = event
     },
     comp_shot_coordinates: function (event) {
       this.comp_shot_coord = event
@@ -136,9 +141,10 @@ export default {
     name_enter() {
         this.game_status.name_enter = false;
         this.game_status.ship_placing = true
+    },
+    enemy_reply(event){
+        this.enemy_reply_res = event
     }
-
-
   }
 }
 </script>
