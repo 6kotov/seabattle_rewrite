@@ -19,23 +19,25 @@
             Row,
             TextInput
         },
-        props:[ 'player_shot_XY','comp_shot_XY', 'context',"comp_shot_AI","explored_cells_prop", "net_player_shot_XY"],
+        props:[ 'player_shot_XY','comp_shot_XY', 'context',"comp_shot_AI","explored_cells_prop", "reply_from_enemy", "net_player_shot_XY"],
         data: function () {
             return {
                 columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                 battlefield: this.battlefield_matrix(),
                 ship_map: [],
                 shot_map: [],
+                shot_map_player: [],
                 counter: 0,
                 ships_data: [4,3,3,2,2,2,1,1,1,1],
                 loss: true,
                 hit: false,
                 comp_loss: "",
-                previous_hit:[3,5],
+                previous_hit:[],
                 first_hit:[],
                 second_hit:[],
                 orient: "0",
-                explored_cells:[]
+                explored_cells:[],
+                loss_ship_info:{}
             }
         },
         methods: {
@@ -153,7 +155,8 @@
                             setTimeout( ()=>{ this.$emit('message', " ")},1000)
                         }
                     } else if (this.context.game_status.player_move && z === 1) {
-                        this.$emit ('mouse_shot_coordinates', {x: x, y: y} )
+                            this.shot_map_player.push([x, y])
+                            this.$emit ('mouse_shot_coordinates', {x: x, y: y} )
                     }
                     this.$emit('ship_field',this.ship_map)
             },
@@ -233,10 +236,12 @@
 
                         if (this.shot_validate(x, y)) {
                                 this.$emit('player_shot_coordinates', {x: x, y: y})
-                                this.shot_map.push([x, y])
+                            this.shot_map_player.push([x, y])
+                            this.$log.debug("player_ shot_map!", this.shot_map)
                                 done = true;
                         }
                     }
+
             },
             comp_shot () {
                 this.hit = this.comp_shot_AI.hit
@@ -411,7 +416,7 @@
                     x = this.comp_shot_XY.x,
                     y = this.comp_shot_XY.y,
                     cell = this.battlefield[x][y],
-                    single_mode = this.game_status.single_player_mode;
+                    single_mode = this.context.game_status.single_player_mode;
 
                     if (cell.ship) {
                         this.loss = false
@@ -437,91 +442,72 @@
                                     pos.loss = true
                                     this.loss = true
                                     this.ship_mark(x, y, pos.positions.length, pos.orient, false, "explored", "hit", false, true, false, true)
+                                    this.loss_ship_info = { loss:true,
+                                                            size: pos.positions.length,
+                                                            orient: pos.orient
+                                                          }
                                 }
                             }
                         }
                     }
                         if (this.end_game()) {
-                            this.context.game_status.winner = "Computer wins!!!"
+                            this.context.game_status.winner =  this.context.game_status.enemy_name + " wins!!!"
                             this.context.game_status.computer_move = false
                             this.context.game_status.player_move = false
                             this.context.game_status.win = true
+                            if ( !single_mode) {
+                               return this.$emit('reply', "win")
+                            }
                         } else {
                             if (single_mode) {
                                 this.$emit('comp_shot_AI',  {loss: this.loss, hit: true})
                                 setTimeout(() => {this.$emit('shot_cpu')}, 1000)
                             } else {
-                                this.$emit('reply',  {loss: this.loss, hit: true})
+                                this.loss ? this.$emit('reply', this.loss_ship_info) : this.$emit('reply', "hit")
                             }
 
                         }
                 } else {
                     cell.disabled = false
                     cell.miss = true
-                    this.$emit('message', "Miss...")
-                    this.$emit('comp_shot_AI',  {loss: this.loss, hit: false})
-                    setTimeout( ()=>{
-                        this.move_switch()
-                        this.$emit('move_turn_comp', "move_denied" )
-                        this.$emit('move_turn_pl', "move_allow" )
-                    },1000)
 
+                        if (single_mode) {
+                            this.$emit('message', "Miss...")
+                            this.$emit('comp_shot_AI',  {loss: this.loss, hit: false})
+                            setTimeout( ()=>{
+                                this.move_switch()
+                                this.$emit('move_turn_comp', "move_denied" )
+                                this.$emit('move_turn_pl', "move_allow" )
+                            },1000)
+                        } else {
+                            this.$emit('reply', "miss")
+                        }
                 }
             },
-            net_player_shot_XY (){
-
-                let length = this.ship_map.length,
-                    x = this.comp_shot_XY.x,
-                    y = this.comp_shot_XY.y,
+            net_player_shot_XY () {
+                let reply = this.reply_from_enemy,
+                    x =  this.net_player_shot_coord.x,
+                    y =  this.net_player_shot_coord.y,
                     cell = this.battlefield[x][y];
 
-                if (cell.ship) {
-                    this.loss = false
+                if (reply === "hit") {
+
                     cell.hit = true
                     cell.ship = false
                     cell.invisible = false
-                    this.explored_cells.push([x-1,y-1],[x+1,y+1],[x-1,y+1],[x+1,y-1])
-                    this.$emit("explored_cells", this.explored_cells)
-                    this.$log.debug(this.explored_cells)
+                    this.$emit('message', "Hit!")
 
-                    for (let i = 0; i < length; i++) {
-                        let pos = this.ship_map[i]
-
-                        for (let j = 0; j < pos.positions.length; j++) {
-                            if (x === pos.positions[j][0] &&
-                                y === pos.positions[j][1]) {
-                                pos.damage.push([x, y])
-
-                                if (pos.positions.length === pos.damage.length) {
-                                    let x = pos.positions[0][0],
-                                        y = pos.positions[0][1];
-                                    pos.loss = true
-                                    this.loss = true
-                                    this.ship_mark(x, y, pos.positions.length, pos.orient, false, "explored", "hit", false, true, false, true)
-                                }
-                            }
-                        }
-                    }
-                    if (this.end_game()) {
-                        this.context.game_status.winner = "Computer wins!!!"
-                        this.context.game_status.computer_move = false
-                        this.context.game_status.player_move = false
-                        this.context.game_status.win = true
-                    } else {
-                        this.$emit('comp_shot_AI',  {loss: this.loss, hit: true})
-                        setTimeout(() => {this.$emit('shot_cpu')}, 1000)
-                    }
-                } else {
+                } else if (reply === "miss") {
                     cell.disabled = false
                     cell.miss = true
                     this.$emit('message', "Miss...")
-                    this.$emit('comp_shot_AI',  {loss: this.loss, hit: false})
-                    setTimeout( ()=>{
-                        this.move_switch()
-                        this.$emit('move_turn_comp', "move_denied" )
-                        this.$emit('move_turn_pl', "move_allow" )
-                    },1000)
 
+                } else if (reply.loss) {
+                    cell.hit = true
+                    cell.ship = false
+                    cell.invisible = false
+                    this.ship_mark(x, y, reply.size, reply.orient, false, "explored", "hit", false, true, false, true)
+                    this.$emit('message', "Loss!!!")
                 }
             }
         }

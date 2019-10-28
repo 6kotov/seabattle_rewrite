@@ -11,9 +11,9 @@ export default {
                 enemy_move:false,
                 win: false,
                 winner:"",
-                player_name:"Player",
+                player_name:"Kot",
                 enemy_name: "Computer"
             }
         }
     }
-    }
+}

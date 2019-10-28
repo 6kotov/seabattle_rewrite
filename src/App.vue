@@ -12,6 +12,7 @@
                                          :context="game_condition()"
                                          :player_shot_XY="player_shot_coord"
                                          :explored_cells_prop="explored_cells"
+                                         :net_player_shot_XY="reply_from_enemy"
                                          :comp_shot_AI="comp_shot_AI"/>
     </div>
 
@@ -39,8 +40,8 @@
       <div class="name" v-if="game_status.name_enter">
          <label for="textarea">Enter your name</label>
               <textarea id="textarea" cols="20" rows="1"
-                        v-model="game_status.player_name"
-                         @keyup.enter="name_enter"></textarea>
+                        v-model="game_status.player_name">
+              </textarea>
          <button  @click="name_enter" >Ok</button>
 
       </div>
@@ -102,7 +103,8 @@ export default {
       message:"",
       ship_field_player:"",
       comp_shot_AI:"",
-      enemy_reply_res:-1,
+      reply_to_enemy:"",
+      reply_from_enemy:"",
       explored_cells:"",
       move_turn_comp: "move_denied",
       move_turn_pl: "move_denied"
@@ -143,7 +145,7 @@ export default {
         this.game_status.ship_placing = true
     },
     enemy_reply(event){
-        this.enemy_reply_res = event
+        this.reply_to_enemy = event
     }
   }
 }
@@ -207,8 +209,8 @@ export default {
   .name {
       position: fixed;
       z-index: 10000;
-      margin-top: 150px;
-      margin-left: -210px;
+      margin-top: 10px;
+      margin-left: 10px;
       font-family: CricketLight, monospace;
       font-size: 20px;
       color: #fff602;

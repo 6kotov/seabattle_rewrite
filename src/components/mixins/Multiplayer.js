@@ -8,12 +8,12 @@ export default {
             name: "multiplayer",
             receive_data: [],
             send_data:  {
-                         status: "game",
-                         name:" " ,
-                         move_turn: " ",
-                         reply: " ",
-                         x:[],
-                         y:[]
+                         status: "",
+                         name:"" ,
+                         move_turn: "",
+                         reply: "",
+                         x:"",
+                         y:""
                          }
         }
     },
@@ -25,69 +25,56 @@ export default {
            send.name = this.game_status.player_name
 
             const data =  this.send_data,
-                  request = setInterval(()=>{this.get_info("START", data) },1000),
+                  request = setInterval(()=>{this.get_data("START", data) },1000),
                   check  = setInterval(()=>{this.check(request, check)},900);
 
         },
-        game_run(){
-           let status = this.game_status,
-           recieved = this.receive_data;
-
-            if (recieved.status === "waiting"){
-                return recieved.move_turn ? status.player_move = true : status.enemy_move = true
-            } else if (recieved.status === "game") {
-                return recieved.move_turn ? this.player_move : this.enemy_move
-            }
-
-        },
-        get_info (path, obj) {
+        get_data (path, obj) {
             api.request_info(data => {
                 this.receive_data = data
             },path, obj )
         },
         check (int_1, int_2) {
-           let recieve = this.receive_data;
-            if (recieve.status === "waiting") {
-               clearInterval(int_1)
-               clearInterval(int_2)
-                this.game_status.enemy_name = recieve.name
-                this.game_run()
-            } else if (recieve.status === "game" && recieve.reply === "miss" && recieve.move_turn) {
-                  clearInterval(int_1)
-                  clearInterval(int_2)
-                this.enemy_reply_res = -1
+           let received = this.receive_data;
+
+            if (received.status === "waiting") {
+                this.game_status.enemy_name = received.name
+                this.send_data.status = "game"
+                received.move_turn ? this.player_move() : this.enemy_move()
+
+            } else if (received.status === "game" && received.reply === "miss") {
+                this.context.reply_from_enemy = "miss"
+                this.context.enemy_reply_res = ""
                 this.enemy_move()
 
-            } else if (recieve.status === "game" && recieve.reply === "hit") {
-
+            } else if (received.status === "game" && received.reply === "hit") {
+                this.context.reply_from_enemy = "hit"
+            }else if (received.status === "game" && received.reply.loss) {
+                this.context.reply_from_enemy = received.reply
+            }else if (received.status === "game" && received === "win") {
+                this.context.game_status.win = true
+                this.context.game_status.winner =  this.context.game_status.enemy_name + " wins!!!"
             }
         },
         player_move () {
-           let result = this.enemy_reply_res,
+           const result = this.reply_to_enemy,
                x =  this.net_player_shot_coord.x,
                y =  this.net_player_shot_coord.y,
                send = this.send_data;
-            send.status = "game"
+
+            this.game_status.enemy_move = false
+            this.game_status.player_move = true
             send.move_turn = false
             send.reply = result
             send.x = x
             send.y = y
 
-            const data =  this.send_data,
-                request = setInterval(()=>{this.get_info("GAME", data) },1000),
-                check  = setInterval(()=>{this.check(request, check)},900);
-
         },
         enemy_move () {
-           let send = this.send_data;
-            send.move_turn = true
-            const data =  this.send_data,
-                request = setInterval(()=>{this.get_info("GAME", data) },1000),
-                check  = setInterval(()=>{this.check(request, check)},900);
-
-            this.comp_shot_coord = {x: this.receive_data.x, y: this.receive_data.y}
-
-
+            this.game_status.enemy_move = true
+            this.game_status.player_move = false
+            this.send_data.move_turn = true
+            this.context.comp_shot_coord = {x: this.receive_data.x, y: this.receive_data.y}
         }
 
     }
