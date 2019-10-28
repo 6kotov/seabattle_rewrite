@@ -1,9 +1,9 @@
 
 module.exports = {
-  status: "waiting",
+  status: "RUN",
   name: "Inokentij",
-  move_turn: true,
-  reply:"loss",
-  x:"-1",
-  y:"-1"
+  move_turn: false,
+  reply:" ",
+  x:4,
+  y:8
 }

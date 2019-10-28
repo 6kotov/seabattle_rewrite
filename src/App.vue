@@ -209,8 +209,8 @@ export default {
   .name {
       position: fixed;
       z-index: 10000;
-      margin-top: 10px;
-      margin-left: 10px;
+      margin-top: 5em;
+      margin-right:5em;
       font-family: CricketLight, monospace;
       font-size: 20px;
       color: #fff602;

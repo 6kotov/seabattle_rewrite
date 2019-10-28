@@ -2,7 +2,6 @@ import api  from '../../api/system_api'
 
 
 export default {
-    props:['context'],
     data: function () {
         return {
             name: "multiplayer",
@@ -21,37 +20,38 @@ export default {
        start_game_net(){
            let send = this.send_data;
 
-           send.status = "waiting"
+           send.status = "START"
            send.name = this.game_status.player_name
 
             const data =  this.send_data,
-                  request = setInterval(()=>{this.get_data("START", data) },1000),
+                  request = setInterval(()=>{this.get_data(send.status, data) },1000),
                   check  = setInterval(()=>{this.check(request, check)},900);
 
         },
         get_data (path, obj) {
             api.request_info(data => {
                 this.receive_data = data
-            },path, obj )
+            },path, obj)
         },
         check (int_1, int_2) {
            let received = this.receive_data;
+            this.comp_shot_coord = {x: this.receive_data.x, y: this.receive_data.y}
 
-            if (received.status === "waiting") {
+            if (received.status === "START") {
                 this.game_status.enemy_name = received.name
-                this.send_data.status = "game"
+                this.send_data.status = "RUN"
                 received.move_turn ? this.player_move() : this.enemy_move()
 
-            } else if (received.status === "game" && received.reply === "miss") {
+            } else if (received.status === "RUN" && received.reply === "miss") {
                 this.context.reply_from_enemy = "miss"
                 this.context.enemy_reply_res = ""
                 this.enemy_move()
 
-            } else if (received.status === "game" && received.reply === "hit") {
+            } else if (received.status === "RUN" && received.reply === "hit") {
                 this.context.reply_from_enemy = "hit"
-            }else if (received.status === "game" && received.reply.loss) {
+            }else if (received.status === "RUN" && received.reply.loss) {
                 this.context.reply_from_enemy = received.reply
-            }else if (received.status === "game" && received === "win") {
+            }else if (received.status === "RUN" && received === "win") {
                 this.context.game_status.win = true
                 this.context.game_status.winner =  this.context.game_status.enemy_name + " wins!!!"
             }
@@ -74,7 +74,7 @@ export default {
             this.game_status.enemy_move = true
             this.game_status.player_move = false
             this.send_data.move_turn = true
-            this.context.comp_shot_coord = {x: this.receive_data.x, y: this.receive_data.y}
+
         }
 
     }

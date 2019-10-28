@@ -23,8 +23,9 @@ export function  load_catalog_info_mock(performer, action) {
     const run_data  = require('./mock-data/run_game_info')
     const stop_data  = require('./mock-data/stop_game_info')
     let get_data = action === "START" ? start_data : action === "RUN" ? run_data : stop_data
-    Vue.$log.debug("MOCK CATALOG DATA", get_data)
+    Vue.$log.debug("getCatalog. URL: '" + get_data + "'")
     setTimeout(() => { performer(get_data) }, LATENCY)
+
 }
 
 export function load_catalog_info(performer, action) {
@@ -45,6 +46,6 @@ export function request_info (performer, path, obj) {
 }
  export  default {
      load_game_info : DEV_MODE ? load_catalog_info_mock : load_catalog_info,
-      request_info : DEV_MODE ? request_info : load_catalog_info_mock
+      request_info : DEV_MODE ? load_catalog_info_mock : request_info
      // request_info : DEV_MODE ? load_catalog_info_mock :request_info
  }
