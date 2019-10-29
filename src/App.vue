@@ -12,7 +12,7 @@
                                          :context="game_condition()"
                                          :player_shot_XY="player_shot_coord"
                                          :explored_cells_prop="explored_cells"
-                                         :net_player_shot_XY="reply_from_enemy"
+                                         :net_player_shot_XY="net_player_shot_coord"
                                          :comp_shot_AI="comp_shot_AI"/>
     </div>
 
@@ -39,7 +39,7 @@
 
       <div class="name" v-if="game_status.name_enter">
          <label for="textarea">Enter your name</label>
-              <textarea id="textarea" cols="20" rows="1"
+              <textarea id="textarea" @keyup.prevent.enter="name_enter" cols="20" rows="1"
                         v-model="game_status.player_name">
               </textarea>
          <button  @click="name_enter" >Ok</button>
@@ -95,7 +95,7 @@ export default {
 
   },
   mixins:[Game_status, Multiplayer],
-  data: function(){
+  data(){
     return {
       player_shot_coord:"",
       net_player_shot_coord:"",
@@ -114,6 +114,7 @@ export default {
     player_shot_coordinates: function (event) {
        return this.game_status.single_player_mode ? this.player_shot_coord = event
            : this.net_player_shot_coord = event
+
     },
     comp_shot_coordinates: function (event) {
       this.comp_shot_coord = event
@@ -194,11 +195,14 @@ export default {
     text-align: center;
   }
   .background {
-    min-width: 1470px;
-    min-height: 700px;
+    width: 100%;
+    height: 100%;
+      position:absolute;
     background-image: url('images/Background.jpg');
     background-size:cover;
     display: inline-table;
+      background-position: left,top;
+      background-repeat: no-repeat;
   }
   .move_allow {
     border: solid 10px rgba(28, 222, 114, 0.7);
@@ -207,10 +211,10 @@ export default {
     border: solid 10px rgb(133, 134, 133);
   }
   .name {
-      position: fixed;
-      z-index: 10000;
-      margin-top: 5em;
-      margin-right:5em;
+      position:absolute;
+      z-index: 1000;
+      top: 50%;
+      right:50%;
       font-family: CricketLight, monospace;
       font-size: 20px;
       color: #fff602;

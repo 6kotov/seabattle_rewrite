@@ -19,7 +19,7 @@
             Row,
             TextInput
         },
-        props:[ 'player_shot_XY','comp_shot_XY', 'context',"comp_shot_AI","explored_cells_prop", "reply_from_enemy", "net_player_shot_XY"],
+        props:[ 'player_shot_XY','comp_shot_XY', 'context',"comp_shot_AI","explored_cells_prop", "net_player_shot_XY"],
         data: function () {
             return {
                 columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -154,7 +154,7 @@
                             this.$emit('message', "inaccessible coordinates")
                             setTimeout( ()=>{ this.$emit('message', " ")},1000)
                         }
-                    } else if (this.context.game_status.player_move && z === 1) {
+                    } else if ( this.context.game_status.player_move && z === 1) {
                             this.shot_map_player.push([x, y])
                             this.$emit ('mouse_shot_coordinates', {x: x, y: y} )
                     }
@@ -237,7 +237,7 @@
                         if (this.shot_validate(x, y)) {
                                 this.$emit('player_shot_coordinates', {x: x, y: y})
                             this.shot_map_player.push([x, y])
-                            this.$log.debug("player_ shot_map!", this.shot_map)
+                            this.$log.debug("player_ shot_map!", this.shot_map_player)
                                 done = true;
                         }
                     }
@@ -290,10 +290,10 @@
                 if (y_1 === y_2) { return x_1 < x_2 ? "down" : "up"}
                 return "0"
             },
-            aimed_shot(x, y) {
+             aimed_shot(x, y) {
                 let valid = this.shot_validate,
                 hit = this.hit,
-                shot = this.comp_random_shot,
+                shot =  this.comp_random_shot,
                 orient = this.orient;
 
                 if (hit && orient === "left" && valid(x, y - 1)) {return  shot(x, y - 1) }
@@ -355,6 +355,9 @@
                     if (! this.ship_map[i].loss) { return false }
                 }
                 return true
+            },
+            is_number : function (value) {
+                return (typeof value === 'number')
             }
         },
         watch: {
@@ -365,31 +368,31 @@
                 }
             },
             player_shot_XY: function () {
-                let length = this.ship_map.length,
-                    x = this.player_shot_XY.x,
-                    y = this.player_shot_XY.y,
-                    cell = this.battlefield[x][y];
+                    let length = this.ship_map.length,
+                        x = this.player_shot_XY.x,
+                        y = this.player_shot_XY.y,
+                        cell = this.battlefield[x][y];
 
-                    if (cell.ship) {
-                    for (let i = 0; i < length; i++) {
-                        let pos = this.ship_map[i]
+                    if (cell.ship & this.is_number) {
+                        for (let i = 0; i < length; i++) {
+                            let pos = this.ship_map[i]
 
-                        for (let j = 0; j < pos.positions.length; j++) {
-                            if (x === pos.positions[j][0] &&
-                                y === pos.positions[j][1]) {
-                                pos.damage.push([x, y])
+                            for (let j = 0; j < pos.positions.length; j++) {
+                                if (x === pos.positions[j][0] &&
+                                    y === pos.positions[j][1]) {
+                                    pos.damage.push([x, y])
+                                }
+                            }
+                            if (pos.positions.length === pos.damage.length) {
+                                pos.loss = true
+                                let x = pos.positions[0][0],
+                                    y = pos.positions[0][1];
+                                this.ship_mark(x, y, pos.size, pos.orient, false, "explored", "hit", false, true, false, true)
                             }
                         }
-                        if (pos.positions.length === pos.damage.length) {
-                            pos.loss = true
-                            let x = pos.positions[0][0],
-                                y = pos.positions[0][1];
-                            this.ship_mark(x, y, pos.size, pos.orient, false, "explored", "hit", false, true, false, true)
-                        }
-                    }
                         cell.hit = true
-                    cell.ship = false
-                    cell.invisible = false
+                        cell.ship = false
+                        cell.invisible = false
                         if (this.end_game()) {
                             this.context.game_status.winner = "Player wins!!!"
                             this.context.game_status.computer_move = false
@@ -397,117 +400,127 @@
                             this.context.game_status.win = true
                             return
                         }
-                    this.$emit('message', "Hit!!!")
-                } else {
-                    cell.disabled = false
-                    cell.miss = true
-                    this.$emit('message', "Miss...")
-                        setTimeout( ()=>{ this.move_switch()},1200)
-                        setTimeout( ()=>{
+                        this.$emit('message', "Hit!!!")
+                    } else {
+                        cell.disabled = false
+                        cell.miss = true
+                        this.$emit('message', "Miss...")
+                        setTimeout(() => {
+                            this.move_switch()
+                        }, 1200)
+                        setTimeout(() => {
                             this.$emit('shot_cpu')
-                            this.$emit('move_turn_comp', "move_allow" )
-                            this.$emit('move_turn_pl', "move_denied " )
-                        },1300)
-                }
+                            this.$emit('move_turn_comp', "move_allow")
+                            this.$emit('move_turn_pl', "move_denied ")
+                        }, 1300)
+                    }
             },
 
             comp_shot_XY: function () {
-                let length = this.ship_map.length,
-                    x = this.comp_shot_XY.x,
-                    y = this.comp_shot_XY.y,
-                    cell = this.battlefield[x][y],
-                    single_mode = this.context.game_status.single_player_mode;
+                if (this.is_number(this.comp_shot_XY.x)) {
+                    let length = this.ship_map.length,
+                        x = this.comp_shot_XY.x,
+                        y = this.comp_shot_XY.y,
+                        cell = this.battlefield[x][y],
+                        single_mode = this.context.game_status.single_player_mode;
+
 
                     if (cell.ship) {
                         this.loss = false
                         cell.hit = true
                         cell.ship = false
                         cell.invisible = false
-                        if(single_mode) {
-                            this.explored_cells.push([x-1,y-1],[x+1,y+1],[x-1,y+1],[x+1,y-1])
+                        if (single_mode) {
+                            this.explored_cells.push([x - 1, y - 1], [x + 1, y + 1], [x - 1, y + 1], [x + 1, y - 1])
                             this.$emit("explored_cells", this.explored_cells)
                         }
 
-                    for (let i = 0; i < length; i++) {
-                        let pos = this.ship_map[i]
+                        for (let i = 0; i < length; i++) {
+                            let pos = this.ship_map[i]
 
-                        for (let j = 0; j < pos.positions.length; j++) {
-                            if (x === pos.positions[j][0] &&
-                                y === pos.positions[j][1]) {
-                                pos.damage.push([x, y])
+                            for (let j = 0; j < pos.positions.length; j++) {
+                                if (x === pos.positions[j][0] &&
+                                    y === pos.positions[j][1]) {
+                                    pos.damage.push([x, y])
 
-                                if (pos.positions.length === pos.damage.length) {
-                                    let x = pos.positions[0][0],
-                                        y = pos.positions[0][1];
-                                    pos.loss = true
-                                    this.loss = true
-                                    this.ship_mark(x, y, pos.positions.length, pos.orient, false, "explored", "hit", false, true, false, true)
-                                    this.loss_ship_info = { loss:true,
-                                                            size: pos.positions.length,
-                                                            orient: pos.orient
-                                                          }
+                                    if (pos.positions.length === pos.damage.length) {
+                                        let x = pos.positions[0][0],
+                                            y = pos.positions[0][1];
+                                        pos.loss = true
+                                        this.loss = true
+                                        this.ship_mark(x, y, pos.positions.length, pos.orient, false, "explored", "hit", false, true, false, true)
+                                        this.loss_ship_info = {
+                                            loss: true,
+                                            size: pos.positions.length,
+                                            orient: pos.orient
+                                        }
+                                    }
                                 }
                             }
                         }
-                    }
                         if (this.end_game()) {
-                            this.context.game_status.winner =  this.context.game_status.enemy_name + " wins!!!"
+                            this.context.game_status.winner = this.context.game_status.enemy_name + " wins!!!"
                             this.context.game_status.computer_move = false
                             this.context.game_status.player_move = false
                             this.context.game_status.win = true
-                            if ( !single_mode) {
-                               return this.$emit('reply', "win")
+                            if (!single_mode) {
+                                return this.$emit('reply', "win")
                             }
                         } else {
                             if (single_mode) {
-                                this.$emit('comp_shot_AI',  {loss: this.loss, hit: true})
-                                setTimeout(() => {this.$emit('shot_cpu')}, 1000)
+                                this.$emit('comp_shot_AI', {loss: this.loss, hit: true})
+                                setTimeout(() => {
+                                    this.$emit('shot_cpu')
+                                }, 1000)
                             } else {
                                 this.loss ? this.$emit('reply', this.loss_ship_info) : this.$emit('reply', "hit")
                             }
 
                         }
-                } else {
-                    cell.disabled = false
-                    cell.miss = true
+                    } else {
+                        cell.disabled = false
+                        cell.miss = true
 
                         if (single_mode) {
                             this.$emit('message', "Miss...")
-                            this.$emit('comp_shot_AI',  {loss: this.loss, hit: false})
-                            setTimeout( ()=>{
+                            this.$emit('comp_shot_AI', {loss: this.loss, hit: false})
+                            setTimeout(() => {
                                 this.move_switch()
-                                this.$emit('move_turn_comp', "move_denied" )
-                                this.$emit('move_turn_pl', "move_allow" )
-                            },1000)
+                                this.$emit('move_turn_comp', "move_denied")
+                                this.$emit('move_turn_pl', "move_allow")
+                            }, 1000)
                         } else {
                             this.$emit('reply', "miss")
                         }
+                    }
                 }
             },
             net_player_shot_XY () {
-                let reply = this.reply_from_enemy,
-                    x =  this.net_player_shot_coord.x,
-                    y =  this.net_player_shot_coord.y,
-                    cell = this.battlefield[x][y];
+                if (this.is_number(this.net_player_shot_XY.x)) {
+                    let reply = this.context.reply_from_enemy,
+                        x = this.net_player_shot_XY.x,
+                        y = this.net_player_shot_XY.y,
+                        cell = this.battlefield[x][y];
+                     this.$log.debug("net_player_shot_XY", this.context.reply_from_enemy, this.net_player_shot_XY.x, this.net_player_shot_XY.y)
+                    if (reply === "hit") {
 
-                if (reply === "hit") {
+                        cell.hit = true
+                        cell.ship = false
+                        cell.invisible = false
+                        this.$emit('message', "Hit!")
 
-                    cell.hit = true
-                    cell.ship = false
-                    cell.invisible = false
-                    this.$emit('message', "Hit!")
+                    } else if (reply === "miss") {
+                        cell.disabled = false
+                        cell.miss = true
+                        this.$emit('message', "Miss...")
 
-                } else if (reply === "miss") {
-                    cell.disabled = false
-                    cell.miss = true
-                    this.$emit('message', "Miss...")
-
-                } else if (reply.loss) {
-                    cell.hit = true
-                    cell.ship = false
-                    cell.invisible = false
-                    this.ship_mark(x, y, reply.size, reply.orient, false, "explored", "hit", false, true, false, true)
-                    this.$emit('message', "Loss!!!")
+                    } else if (reply.loss) {
+                        cell.hit = true
+                        cell.ship = false
+                        cell.invisible = false
+                        this.ship_mark(x, y, reply.size, reply.orient, false, "explored", "hit", false, true, false, true)
+                        this.$emit('message', "Loss!!!")
+                    }
                 }
             }
         }
