@@ -2,7 +2,6 @@
   <div>
 <Cell @xy_position="coord_emit" :battlefield="battlefield"
       :colindex="colindex" :rowindex="row"  v-for="row in rows" :key="row.id"/>
-
   </div>
 </template>
 

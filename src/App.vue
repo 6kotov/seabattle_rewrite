@@ -39,7 +39,7 @@
 
       <div class="name" v-if="game_status.name_enter">
          <label for="textarea">Enter your name</label>
-              <textarea id="textarea" @keyup.prevent.enter="name_enter" cols="20" rows="1"
+              <textarea autofocus id="textarea"  @keyup.prevent.enter="name_enter" cols="20" rows="1"
                         v-model="game_status.player_name">
               </textarea>
          <button  @click="name_enter" >Ok</button>

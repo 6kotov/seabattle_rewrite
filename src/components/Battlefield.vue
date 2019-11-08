@@ -373,7 +373,7 @@
                         y = this.player_shot_XY.y,
                         cell = this.battlefield[x][y];
 
-                    if (cell.ship & this.is_number) {
+                    if (cell.ship) {
                         for (let i = 0; i < length; i++) {
                             let pos = this.ship_map[i]
 
