@@ -2,7 +2,7 @@
 module.exports = {
   status: "START",
   name: "Inokentij",
-  move_turn: true,
+  move_turn: false,
   reply:" ",
   x:7,
   y:8

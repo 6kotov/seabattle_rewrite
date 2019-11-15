@@ -54,7 +54,8 @@ export default {
     watch: {
         receive_data(){
             let received = this.receive_data;
-            this.$log.debug("Watch is running.",this.send_data.x, this.send_data.y)
+            this.$log.debug("send_data >>>",this.send_data)
+            this.$log.debug("receive_data >>>",this.send_data)
 
 
             if (received.status === "START") {

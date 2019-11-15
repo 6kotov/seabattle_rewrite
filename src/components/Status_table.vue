@@ -3,7 +3,8 @@
   <div  v-if="context.game_status.single_player_mode" >Single player mode </div>
   <div  v-if="context.game_status.multi_player_mode" >Multiplayer mode </div>
   <div  v-if="context.game_status.ship_placing" >Ship placing <br>{{message}} <br> </div>
-  <div v-else-if="context.game_status.player_move" >Player move <br>{{message}} </div>
+  <div v-else-if="context.game_status.player_move" >{{context.game_status.player_name}} move <br>{{message}} </div>
+  <div v-else-if="context.game_status.enemy_move" >{{context.game_status.enemy_name}} move <br>{{message}} </div>
   <div  v-else-if="context.game_status.computer_move" >Computer move  <br>{{message}}</div>
   <div  v-else-if="context.game_status.win" >{{context.game_status.winner}} </div>
   </div>

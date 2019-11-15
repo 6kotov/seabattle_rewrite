@@ -46,5 +46,5 @@ export function request_info (performer, path, obj) {
 }
  export  default {
       // request_info : DEV_MODE ? load_catalog_info_mock : request_info
-     request_info : DEV_MODE ? request_info : load_catalog_info_mock
+     request_info : DEV_MODE ? load_catalog_info_mock : request_info
  }
