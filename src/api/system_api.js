@@ -36,15 +36,14 @@ export function load_catalog_info(performer, action) {
         .catch(default_error_handler)
 }
 
-export function request_info (performer, path, obj) {
+export async function request_info (performer, path, obj) {
     // const whole_url = BACKEND_BASE_URL + $$.startswith(path, "/") ? path : "/" + path
     // const whole_url = "http://httpbin.org/post"
-    const whole_url = "http://192.168.0.103:5000"
-    return axios.post(whole_url, obj).then((response) => performer(response.data))
+    const whole_url = "http://127.0.0.1:3000/"+ path
+    return await axios.post(whole_url, obj).then((response) => performer(response.data))
         .catch(default_error_handler)
-
 }
  export  default {
       // request_info : DEV_MODE ? load_catalog_info_mock : request_info
-     request_info : DEV_MODE ? load_catalog_info_mock : request_info
+     request_info : DEV_MODE ?request_info : load_catalog_info_mock
  }

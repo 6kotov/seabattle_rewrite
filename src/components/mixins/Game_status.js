@@ -1,5 +1,5 @@
 export default {
-    data: function () {
+    data () {
         return {
             game_status : {
                 name_enter: true,

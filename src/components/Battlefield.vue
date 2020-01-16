@@ -37,7 +37,10 @@
                 second_hit:[],
                 orient: "0",
                 explored_cells:[],
-                loss_ship_info:{}
+                loss_ship_info:{},
+                comp_map: [2,0,5,7,4,2,2,4,1,7,2,8,3,1,
+                    0,2,8,2,7,1,0,6,3,9,1,3,6,8,6,0,9,
+                    3,3,5,9,7,8,6,6,4,4,6,5,3,7,5,7,9]
             }
         },
         methods: {
@@ -309,8 +312,14 @@
                 let done = false;
 
                 while (!done) {
-                    let x = posX === -1 ? this.get_random(9) : posX;
-                    let y = posY === -1 ? this.get_random(9) : posY;
+                    // let x = posX === -1 ? this.get_random(9) : posX;
+                    // let y = posY === -1 ? this.get_random(9) : posY;
+                    let x = posX
+                    let y = posY
+                    if (x === -1) { x = this.comp_shoot_map()}
+                    if (x === -1) { x = this.get_random(9)}
+                    if (y === -1) { y = this.comp_shoot_map()}
+                    if (y === -1) { y = this.get_random(9)}
 
                     if (this.shot_validate(x, y)) {
                         this.$emit('comp_shot_coordinates', {x: x, y: y})
@@ -322,15 +331,12 @@
                 }
             },
 
-            // comp_shoot_map(){
-            //     let map = [2,0,5,7,4,2,2,4,1,7,2,8,3,1,
-            //          0,2,8,2,7,1,0,6,3,9,1,3,6,8,6,0,9,
-            //          3,3,5,9,7,8,6,6,4,4,6,5,3,7,5,7,9],
-            //     coordinate = map.pop();
-            //
-            //     if (map.length > 0) {return {coordinate:coordinate}}
-            //
-            // },
+            comp_shoot_map(){
+                let coordinate = this.comp_map.pop();
+
+                if (this.comp_map.length > 0) {return coordinate}
+                else {return -1}
+            },
 
             shot_validate: function (x,y) {
                 let length = this.shot_map.length;
@@ -394,7 +400,7 @@
                         cell.ship = false
                         cell.invisible = false
                         if (this.end_game()) {
-                            this.context.game_status.winner = "Player wins!!!"
+                            this.context.game_status.winner = this.context.game_status.enemy_name + "wins!!!"
                             this.context.game_status.computer_move = false
                             this.context.game_status.player_move = false
                             this.context.game_status.win = true

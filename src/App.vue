@@ -72,7 +72,7 @@ import Vue from 'vue'
 import Battlefield from './components/Battlefield.vue'
 import Game_status from './components/mixins/Game_status.js'
 import Status_table from './components/Status_table.vue'
-import Multiplayer from './components/mixins/Multiplayer.js'
+import MultiPlayer from './components/mixins/Multiplayer.js'
 import VueLogger from 'vuejs-logger';
 
 
@@ -94,7 +94,7 @@ export default {
     Status_table,
 
   },
-  mixins:[Game_status, Multiplayer],
+  mixins:[Game_status, MultiPlayer],
   data(){
     return {
       player_shot_coord:"",
@@ -156,9 +156,10 @@ export default {
   .Status_table {
     font-family: CricketLight, monospace;
     font-size: 20px;
-    color: #fff602;
-    border: solid #060606;
-    background-color: darkcyan;
+    color: rgba(0, 119, 255, 0.55);
+      border:2px solid #060606;
+      border-radius: 10px;
+    background-color: #cdfff9;
     padding: 5px;
     height: 100px;
     width: 200px;
@@ -170,16 +171,18 @@ export default {
     margin: 3px;
     font-family: CricketLight,monospace;
     font-size:20px;
-    border: #060606 solid;
+      border:2px solid #060606;
+      border-radius: 10px;
   }
   b {
     font-family: CricketLight,monospace;
    font-size:20px;
-    color: #fff602;
-    border: solid #060606;
+    color: rgba(0, 119, 255, 0.55);
+    border:2px solid #060606;
+    border-radius: 10px;
     display: inline-table;
     margin-bottom: 10px;
-    background-color: darkcyan;
+    background-color: #cdfff9;
     padding: 2px;
   }
   .Battlefield_cpu {
@@ -217,9 +220,10 @@ export default {
       right:50%;
       font-family: CricketLight, monospace;
       font-size: 20px;
-      color: #fff602;
-      border: solid #060606;
-      background-color: darkcyan;
+      color: rgba(0, 119, 255, 0.55);
+      border:2px solid #060606;
+      border-radius: 10px;
+      background-color: #cdfff9;
       padding: 5px;
       height: 100px;
       width: 200px;

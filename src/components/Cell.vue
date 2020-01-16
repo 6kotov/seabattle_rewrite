@@ -68,8 +68,8 @@ props:["rowindex","colindex","battlefield"],
   div {
     background-color: rgba(93, 255, 253, 0.21);
     border: 1px solid #24284d;
-    width:40px;
-    height:40px;
+    width:35px;
+    height:35px;
   }
   .ship  {
     background-color: rgba(49, 83, 88, 0.67);
