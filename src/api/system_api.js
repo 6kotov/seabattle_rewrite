@@ -4,7 +4,6 @@ import {$$} from '../components/Common/utils'
 
 
 const DEV_MODE = process.env.VUE_APP_RUNMODE_ENV === 'development'
-
 const backend_host = process.env.VUE_APP_BACKEND_URL
 const backend_port = process.env.VUE_APP_BACKEND_PORT
 const http_schema = 'http:'

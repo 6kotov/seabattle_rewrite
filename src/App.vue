@@ -10,6 +10,7 @@
                                          @move_turn_pl="move_turn_pl_emit($event)"
                                          @move_turn_comp="move_turn_comp_emit($event)"
                                          :context="game_condition()"
+                                         :reply_from_enemy="reply_from_enemy"
                                          :player_shot_XY="player_shot_coord"
                                          :explored_cells_prop="explored_cells"
                                          :net_player_shot_XY="net_player_shot_coord"
@@ -76,6 +77,7 @@ import MultiPlayer from './components/mixins/Multiplayer.js'
 import VueLogger from 'vuejs-logger';
 
 
+
 const options = {
   isEnabled: true,
   logLevel : 'debug',
@@ -97,13 +99,20 @@ export default {
   mixins:[Game_status, MultiPlayer],
   data(){
     return {
-      player_shot_coord:"",
-      net_player_shot_coord:"",
-      comp_shot_coord:"",
+      player_shot_coord:{x:-1, y:-1},
+      net_player_shot_coord:{x:-1, y:-1},
+      comp_shot_coord: {x:-1, y:-1},
       message:"",
       ship_field_player:"",
       comp_shot_AI:"",
-      reply_to_enemy:"",
+      reply_to_enemy:{
+                          reply:'',
+                          loss: false,
+                          size: -1,
+                          orient:-1,
+                          x:-1,
+                          y:-1
+                      },
       reply_from_enemy:"",
       explored_cells:"",
       move_turn_comp: "move_denied",
@@ -114,6 +123,7 @@ export default {
     player_shot_coordinates: function (event) {
        return this.game_status.single_player_mode ? this.player_shot_coord = event
            : this.net_player_shot_coord = event
+
 
     },
     comp_shot_coordinates: function (event) {
@@ -161,7 +171,7 @@ export default {
       border-radius: 10px;
     background-color: #cdfff9;
     padding: 5px;
-    height: 100px;
+    height:35%;
     width: 200px;
     text-align: center;
     display: inline-table;

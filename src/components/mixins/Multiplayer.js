@@ -1,22 +1,24 @@
 import api  from '../../api/system_api'
-import App from "../../App";
+import CryptoJS from 'crypto-js'
+const salt = process.env.SECRET
+
 
 
 export default {
     data () {
         return {
-            name: "multiplayer",
-            receive_data: {},
+            name: "multiPlayer",
+            receive_data: {enemy:{x:-1, y:-1}},
             send_data:  {
-                         status:"start",
-                         name:"" ,
-                         enemy_id: '-1',
-                         enemy_name:"",
-                         move_turn: "",
-                         reply: "",
-                         x:"",
-                         y:""
-                         }
+                 status:"start",
+                 name:"" ,
+                 enemy_id: '-1',
+                 enemy_name:"",
+                 move_turn: "",
+                 reply:'',
+                 x:-1,
+                 y:-1
+        }
         }
     },
     methods: {
@@ -29,66 +31,96 @@ export default {
                const waitInterval = setInterval(()=>{
                    if(this.receive_data.player.status === "run") {
                        clearInterval(waitInterval)
-                       // setInterval(()=>{this.get_data(send.status, send) }, 1000)
+                       setInterval(()=>{this.get_data(send.status, send)
+                       }, 100)
                    }
                    this.get_data(send.status, send)}, 2000)
         },
         get_data (path, obj) {
             api.request_info(data => {
                 this.receive_data = data
-                this.$log.debug("receive_data >>>",  this.receive_data)
             },path, obj)
+    },
+        crypto(obj, func){
+           if(func === 'encrypt') {
+               return CryptoJS.AES.encrypt(JSON.stringify(obj), salt)
+           } else if (func === 'decrypt') {
+               let bytes =  CryptoJS.AES.decrypt(obj.toString(), salt)
+               return  JSON.parse(bytes.toString(CryptoJS.enc.Utf8))
+           }
         },
-        player_move () {
-            App.data().comp_shot_coord = " "
-           const result = this.reply_to_enemy,
-               x =    App.data().net_player_shot_coord.x,
-               y =   App.data().net_player_shot_coord.y,
-               send = this.send_data ;
+        player_move_turn () {
+            this.comp_shot_coord = {x:-1, y:-1}
+           const send = this.send_data;
             this.game_status.enemy_move = false
             this.game_status.player_move = true
             send.move_turn = false
-            send.reply = result
-            send.x = x
-            send.y = y
+            this.reply_to_enemy = {
+                reply:'',
+                loss: false,
+                size: -1,
+                orient:-1,
+                x:-1,
+                y:-1,
+                x_1:-1,
+                y_1:-1
+            }
         },
-        enemy_move () {
-            App.data().net_player_shot_coord = " "
-            App.data().comp_shot_coord = {x: this.receive_data.x, y: this.receive_data.y}
+        enemy_move_turn () {
+
+           this.reply_to_enemy = {
+               reply:'',
+               loss: false,
+               size: -1,
+               orient:-1,
+               x:-1,
+               y:-1,
+               x_1:-1,
+               y_1:-1
+           }
+
             this.game_status.enemy_move = true
             this.game_status.player_move = false
             this.send_data.move_turn = true
         }
-
     },
     watch: {
         receive_data(){
             let received = this.receive_data;
-            this.$log.debug("send_data >>>",this.send_data)
-            this.$log.debug("receive_data >>>", received)
 
+            this.reply_from_enemy =  this.receive_data.enemy.reply
+            this.comp_shot_coord = {x: received.enemy.x , y:received.enemy.y}
+            this.send_data.reply = this.reply_to_enemy
 
-            if (received.status === "start") {
-                this.send_data._id = received._id
+            if (received.player.status === "wait") {
+
                 this.send_data.status = "wait"
-            } else if(received.status === "wait" && received.enemy_id !=='-1') {
-                this.game_status.enemy_name = received.enemy_name
+                this.send_data._id = received.player._id
+                this.send_data.enemy_id = received.player.enemy_id
+                this.send_data.enemy_name = received.player.enemy_name
+                this.game_status.enemy_name = received.player.enemy_name
+
+            } else if(received.player.status === "run" &&  this.send_data.status === "wait" ) {
+                this.send_data.enemy_id = received.player.enemy_id
+                this.send_data.enemy_name = received.player.enemy_name
+                this.game_status.enemy_name = received.player.enemy_name
                 this.send_data.status = "run"
-                received.move_turn ? this.player_move() : this.enemy_move()
+                received.player.move_turn ? this.player_move_turn() : this.enemy_move_turn()
 
-            } else if (received.status === "run" && received.reply === "miss") {
-                this.reply_from_enemy = "miss"
-                this.enemy_reply_res = " "
-                this.enemy_move()
-
-            }else if (received.status === "run" && received.reply === "hit") {
-                this.reply_from_enemy = "hit"
-            }else if (received.status === "run" && received.reply.loss) {
-                this.reply_from_enemy = received.reply
-            }else if (received.status === "run" && received.reply === "win") {
-                this.game_status.win = true
-                this.game_status.winner =  this.context.game_status.enemy_name + " wins!!!"
+            } else if (received.player.status === "run" && received.enemy.reply.reply === "miss") {
+                this.enemy_move_turn()
+            } else if (received.player.status === "run" && this.send_data.reply.reply === "miss") {
+                setTimeout(this.player_move_turn(),200)
+            } else if (this.send_data.reply.reply === "win") {
+                    this.game_status.winner = this.game_status.enemy_name + " wins!!!"
+                    this.game_status.computer_move = false
+                    this.game_status.player_move = false
+                    this.game_status.win = true
             }
+        },
+        net_player_shot_coord (){
+            this.send_data.x = this.net_player_shot_coord.x
+            this.send_data.y = this.net_player_shot_coord.y
         }
     }
 

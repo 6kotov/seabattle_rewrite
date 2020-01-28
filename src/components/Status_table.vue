@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="status">
   <div  v-if="context.game_status.single_player_mode" >Single player mode </div>
   <div  v-if="context.game_status.multi_player_mode" >Multiplayer mode </div>
   <div  v-if="context.game_status.ship_placing" >Ship placing <br>{{message}} <br> </div>
@@ -51,7 +51,6 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
     div {
-
         margin: 5px;
     }
 </style>

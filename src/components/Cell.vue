@@ -1,7 +1,7 @@
 <template>
 
-  <div v-on:click.left="coordinates_emit(1)" v-on:click.right.prevent="coordinates_emit(0)"
-       class="invisible_ship" v-if="isship_invisible" ></div>
+  <div v-on:click.left="coordinates_emit(1)"  v-on:click.right.prevent="coordinates_emit(0)"
+       class="invisible_ship simple" v-if="isship_invisible" ></div>
 
   <div v-on:click.left="coordinates_emit(1)"  v-on:click.right.prevent="coordinates_emit(0)"
        class="ship" v-else-if="isship" ></div>
@@ -14,9 +14,9 @@
   <div class="miss" v-else-if="ismiss" ></div>
 
   <div v-on:click.left="coordinates_emit(1)"  v-on:click.right.prevent="coordinates_emit(0)"
-       class="disabled" v-else-if="isdisabled" ></div>
+       class="disabled simple" v-else-if="isdisabled" ></div>
 
-  <div v-on:click.left="coordinates_emit(1)"  v-on:click.right.prevent="coordinates_emit(0)"
+  <div class="simple" v-on:click.left="coordinates_emit(1)"  v-on:click.right.prevent="coordinates_emit(0)"
        v-else></div>
 
 </template>
@@ -79,6 +79,10 @@ props:["rowindex","colindex","battlefield"],
   }
   .disabled  {
     background-color: rgba(93, 255, 253, 0.2);
+
+  }
+  .simple:hover {
+    background-color: rgba(66, 166, 33, 0.69);
 
   }
   .hit  {

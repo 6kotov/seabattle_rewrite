@@ -11,7 +11,7 @@ export default {
                 enemy_move:false,
                 win: false,
                 winner:"",
-                player_name:"Kot",
+                player_name:"Captain User",
                 enemy_name: "Computer"
             }
         }
