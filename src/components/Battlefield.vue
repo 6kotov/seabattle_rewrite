@@ -13,6 +13,7 @@
     import TextInput from './TextInput.vue'
     import Vue from 'vue'
     import Ship from './Ship.js'
+    import MultiPlayer from "./mixins/Multiplayer";
 
     export default {
         components: {
@@ -324,8 +325,6 @@
                 let done = false;
 
                 while (!done) {
-                    // let x = posX === -1 ? this.get_random(9) : posX;
-                    // let y = posY === -1 ? this.get_random(9) : posY;
                     let x = posX
                     let y = posY
                     if (x === -1) { x = this.comp_shoot_map()}
@@ -507,6 +506,7 @@
                             this.context.game_status.computer_move = false
                             this.context.game_status.player_move = false
                             this.context.game_status.win = true
+                            MultiPlayer.data().send_data.move_turn = false
                             if (single_mode) {
                                 return this.$emit('reply', "win")
                             } else {

@@ -1,8 +1,4 @@
 import api  from '../../api/system_api'
-import CryptoJS from 'crypto-js'
-const salt = process.env.SECRET
-
-
 
 export default {
     data () {
@@ -18,7 +14,9 @@ export default {
                  reply:'',
                  x:-1,
                  y:-1
-        }
+        },
+            runInterval:false,
+            waitInterval:false
         }
     },
     methods: {
@@ -28,30 +26,23 @@ export default {
            send.name =this.game_status.player_name
            this.get_data(send.status, send)
 
-               const waitInterval = setInterval(()=>{
+                this.waitInterval = setInterval(()=>{
                    if(this.receive_data.player.status === "run") {
-                       clearInterval(waitInterval)
-                       setInterval(()=>{this.get_data(send.status, send)
-                       }, 100)
+                       clearInterval(this.waitInterval)
+                      this.runInterval = setInterval(()=>{this.get_data(send.status, send)
+                       }, 300)
                    }
                    this.get_data(send.status, send)}, 2000)
         },
         get_data (path, obj) {
+
             api.request_info(data => {
                 this.receive_data = data
             },path, obj)
     },
-        crypto(obj, func){
-           if(func === 'encrypt') {
-               return CryptoJS.AES.encrypt(JSON.stringify(obj), salt)
-           } else if (func === 'decrypt') {
-               let bytes =  CryptoJS.AES.decrypt(obj.toString(), salt)
-               return  JSON.parse(bytes.toString(CryptoJS.enc.Utf8))
-           }
-        },
         player_move_turn () {
             this.comp_shot_coord = {x:-1, y:-1}
-           const send = this.send_data;
+            const send = this.send_data;
             this.game_status.enemy_move = false
             this.game_status.player_move = true
             send.move_turn = false
@@ -78,7 +69,6 @@ export default {
                x_1:-1,
                y_1:-1
            }
-
             this.game_status.enemy_move = true
             this.game_status.player_move = false
             this.send_data.move_turn = true
@@ -86,7 +76,8 @@ export default {
     },
     watch: {
         receive_data(){
-            let received = this.receive_data;
+            let received = this.receive_data,
+            status = this.game_status;
 
             this.reply_from_enemy =  this.receive_data.enemy.reply
             this.comp_shot_coord = {x: received.enemy.x , y:received.enemy.y}
@@ -110,18 +101,28 @@ export default {
             } else if (received.player.status === "run" && received.enemy.reply.reply === "miss") {
                 this.enemy_move_turn()
             } else if (received.player.status === "run" && this.send_data.reply.reply === "miss") {
-                setTimeout(this.player_move_turn(),200)
-            } else if (this.send_data.reply.reply === "win") {
-                    this.game_status.winner = this.game_status.enemy_name + " wins!!!"
-                    this.game_status.computer_move = false
-                    this.game_status.player_move = false
-                    this.game_status.win = true
+                setTimeout(this.player_move_turn(),400)
+            } else if (this.send_data.reply.reply === "win"|| received.enemy.reply.reply === "win") {
+                setTimeout(()=>{
+                    clearInterval(this.runInterval)
+                    this.send_data.status = "exit"
+                    this.get_data(this.send_data.status, this.send_data)},1000)
+                    status.move_turn = false
+                    status.computer_move = false
+                    status.player_move = false
+                    status.win = true
+                    if (this.send_data.reply.reply === "win"){status.winner = status.enemy_name + " wins!!!"}
+                    else {
+                        if (received.enemy.name === "Enemy capitulated! You win!") {
+                            status.winner = "Enemy capitulated! You win!"
+                            return
+                        }
+                        status.winner = status.player_name + " wins!!!" }
             }
-        },
+                },
         net_player_shot_coord (){
             this.send_data.x = this.net_player_shot_coord.x
             this.send_data.y = this.net_player_shot_coord.y
         }
     }
-
 }

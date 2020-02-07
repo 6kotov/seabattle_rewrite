@@ -72,7 +72,7 @@ props:["rowindex","colindex","battlefield"],
     height:35px;
   }
   .ship  {
-    background-color: rgba(49, 83, 88, 0.67);
+    background-color: rgba(34, 88, 21, 0.88);
   }
   .invisible_ship {
     background-color: rgba(93, 255, 253, 0.2);

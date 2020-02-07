@@ -69,14 +69,15 @@
 </template>
 
 <script>
+
+
 import Vue from 'vue'
 import Battlefield from './components/Battlefield.vue'
 import Game_status from './components/mixins/Game_status.js'
 import Status_table from './components/Status_table.vue'
 import MultiPlayer from './components/mixins/Multiplayer.js'
 import VueLogger from 'vuejs-logger';
-
-
+import system_api from "./api/system_api";
 
 const options = {
   isEnabled: true,
@@ -89,12 +90,20 @@ const options = {
 };
 
 Vue.use(VueLogger, options);
+window.addEventListener('beforeunload',  function() {
+    if(this.game_status.single_player_mode){return}
+    system_api.request_info(()=>{},'exit', MultiPlayer.send_data)
+    if(this.runInterval) {
+        clearInterval(this.runInterval)
+    } else if (this.waitInterval ){
+        clearInterval(this.waitInterval)
+    }
+})
 
 export default {
   components: {
     Battlefield,
     Status_table,
-
   },
   mixins:[Game_status, MultiPlayer],
   data(){
@@ -123,8 +132,6 @@ export default {
     player_shot_coordinates: function (event) {
        return this.game_status.single_player_mode ? this.player_shot_coord = event
            : this.net_player_shot_coord = event
-
-
     },
     comp_shot_coordinates: function (event) {
       this.comp_shot_coord = event

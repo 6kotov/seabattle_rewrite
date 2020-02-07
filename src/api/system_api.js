@@ -8,7 +8,7 @@ const backend_host = process.env.VUE_APP_BACKEND_URL
 const backend_port = process.env.VUE_APP_BACKEND_PORT
 const http_schema = 'http:'
 const port_str = backend_port === 80 ? "" : ":" + backend_port
-const BACKEND_BASE_URL = http_schema + '//' + backend_host + port_str
+const BACKEND_URL = http_schema + '//' + backend_host + port_str
 
 
 function default_error_handler(error) {
@@ -28,21 +28,21 @@ export function  load_catalog_info_mock(performer, action) {
 }
 
 export function load_catalog_info(performer, action) {
-    const whole_url = BACKEND_BASE_URL + $$.startswith(action, "/") ? action : "/" + action
+    const whole_url = BACKEND_URL + $$.startswith(action, "/") ? action : "/" + action
     Vue.$log.debug("getCatalog. URL: '" + whole_url + "'")
     return axios({url: whole_url, method: 'GET'})
         .then((response) => performer(response.data))
         .catch(default_error_handler)
 }
 
-export async function request_info (performer, path, obj) {
-    // const whole_url = BACKEND_BASE_URL + $$.startswith(path, "/") ? path : "/" + path
-    // const whole_url = "http://httpbin.org/post"
-    const whole_url = "http://127.0.0.1:3000/"+ path
-    return await axios.post(whole_url, obj).then((response) => performer(response.data))
+export  function request_info (performer, path, obj) {
+    const path_x = $$.startswith(path, "/") ? path : "/" + path
+    const whole_url = BACKEND_URL + path_x
+    // const whole_url = backend_host + backend_port + path
+    return  axios.post(whole_url, obj).then((response) => performer(response.data))
         .catch(default_error_handler)
 }
  export  default {
-      // request_info : DEV_MODE ? load_catalog_info_mock : request_info
-     request_info : DEV_MODE ?request_info : load_catalog_info_mock
- }
+    // request_info : DEV_MODE ? load_catalog_info_mock : request_info
+    request_info : DEV_MODE ?request_info : load_catalog_info_mock
+}
