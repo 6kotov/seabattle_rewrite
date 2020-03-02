@@ -92,7 +92,7 @@ import Status_table from "./components/Status_table.vue";
 import MultiPlayer from "./components/mixins/Multiplayer.js";
 import VueLogger from "vuejs-logger";
 
-const options = {
+const logger_options = {
   isEnabled: true,
   logLevel: "debug",
   stringifyArguments: false,
@@ -102,7 +102,7 @@ const options = {
   showConsoleColors: true
 };
 
-Vue.use(VueLogger, options);
+Vue.use(VueLogger, logger_options);
 
 export default {
   components: {
@@ -223,16 +223,17 @@ b {
   text-align: center;
 }
 .main_back {
+  background: url("assets/Background.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center, center;
   display: inline-flex;
   width: 100vw;
-  height: 100vh;
+  height: -webkit-fill-available;
   position: absolute;
   top: 0%;
   left: 0%;
-  background-image: url("assets/Background.jpg");
-  background-size: cover;
-  background-position: left, top;
-  background-repeat: no-repeat;
 }
 .move_allow {
   border: solid 10px rgba(28, 222, 114, 0.7);
@@ -263,14 +264,24 @@ b {
 @media screen and (orientation: portrait) {
   .main_back {
     flex-direction: column;
+    align-items: center;
   }
   .Status_table {
-    width: 100vw;
+    width: 50vw;
     height: 10%;
     margin-top: 1em;
     text-align: center;
     display: inline-table;
     position: relative;
+  }
+  .Battlefield {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 1030px) and (pointer: coarse) {
+  .Status_table {
+    font-size: 1em;
   }
   .Battlefield {
     margin-left: 0;

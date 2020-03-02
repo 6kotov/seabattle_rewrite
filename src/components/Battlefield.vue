@@ -561,6 +561,9 @@ export default {
     }
   },
   watch: {
+    client_rect() {
+      this.$log.debug(this.client_rect);
+    },
     explored_cells_prop: function() {
       let exp_cell = this.explored_cells_prop;
       for (let i = 0; i < exp_cell.length; i++) {
@@ -858,5 +861,10 @@ export default {
 }
 .text_input {
   margin: auto;
+}
+@media (max-width: 1030px) and (pointer: coarse) {
+  .wrapper {
+    width: 12.3em;
+  }
 }
 </style>

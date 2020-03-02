@@ -68,7 +68,6 @@ export default {
     coordinates_emit: function(z) {
       let x = this.x,
         y = this.y;
-
       this.$emit("xy_position", x, y, z);
     }
   }
@@ -103,5 +102,12 @@ div {
 }
 .explored {
   background-color: rgb(53, 78, 146);
+}
+
+@media (max-width: 1030px) and (pointer: coarse) {
+  div {
+    width: 1em;
+    height: 1em;
+  }
 }
 </style>
