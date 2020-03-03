@@ -1,31 +1,20 @@
 <template>
   <div class="status">
     <div v-if="context.game_status.win">{{context.game_status.winner}}</div>
-    <div v-if="context.game_status.single_player_mode">Single player mode</div>
-    <div v-if="context.game_status.multi_player_mode">Multiplayer mode</div>
-    <div v-if="context.game_status.ship_placing">
-      Ship placing
-      <br />
-      {{message}}
-      <br />
-    </div>
-    <div v-else-if="context.game_status.player_move">
-      {{context.game_status.player_name}} move
-      <br />
-      {{message}}
-    </div>
-    <div v-else-if="context.game_status.enemy_move && !context.game_status.win">
-      {{context.game_status.enemy_name}} move
-      <br />
-      {{message}}
-    </div>
-    <div v-else-if="context.game_status.computer_move">
-      Computer move
-      <br />
-      {{message}}
-    </div>
+    <div v-if="context.game_status.ship_placing">Ship placing</div>
+    <div v-else-if="context.game_status.player_move">{{context.game_status.player_name}} move</div>
+    <div
+      v-else-if="context.game_status.enemy_move && !context.game_status.win"
+    >{{context.game_status.enemy_name}} move</div>
+    <div v-else-if="context.game_status.computer_move">Computer move</div>
     <img class="volume" src="../assets/volume_on.png" v-if="mute" @click="sound_switch" />
     <img class="volume" src="../assets/volume_off.png" v-if="!mute" @click="sound_switch" />
+    <button v-if="this.context.field_mode" class="button_red" @click="field_mode_switch">field mode</button>
+    <button
+      v-if="!this.context.field_mode"
+      class="button_green"
+      @click="field_mode_switch"
+    >field mode</button>
   </div>
 </template>
 
@@ -64,6 +53,9 @@ export default {
     },
     sound_switch() {
       this.context.sound = !this.context.sound;
+    },
+    field_mode_switch() {
+      this.context.field_mode = !this.context.field_mode;
     }
   }
 };
@@ -80,5 +72,11 @@ div {
   border-radius: 10px;
   height: 1.3em;
   float: left;
+}
+.button_red {
+  background-color: tomato;
+}
+.button_green {
+  background-color: yellowgreen;
 }
 </style>

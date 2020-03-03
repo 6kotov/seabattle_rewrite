@@ -79,8 +79,8 @@ export default {
 div {
   background-color: rgba(93, 255, 253, 0.21);
   border: 1px solid #24284d;
-  width: 2em;
-  height: 2em;
+  width: 1.8em;
+  height: 1.8em;
 }
 .ship {
   background-color: rgba(34, 88, 21, 0.88);
@@ -106,8 +106,11 @@ div {
 
 @media (max-width: 1030px) and (pointer: coarse) {
   div {
-    width: 1em;
-    height: 1em;
+    width: 1.1em;
+    height: 1.1em;
+  }
+  .simple:hover {
+    background-color: inherit;
   }
 }
 </style>

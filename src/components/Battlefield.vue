@@ -840,7 +840,7 @@ export default {
   font-weight: bold;
   font-size: 1.3em;
   background-color: rgba(109, 211, 177, 0.712);
-  width: 22.3em;
+  width: 20.7em;
   display: flex;
   flex-flow: wrap;
 }
@@ -864,7 +864,7 @@ export default {
 }
 @media (max-width: 1030px) and (pointer: coarse) {
   .wrapper {
-    width: 12.3em;
+    width: 13.5em;
   }
 }
 </style>

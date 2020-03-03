@@ -1,6 +1,6 @@
 <template>
   <div class="main_back">
-    <div class="Battlefield">
+    <div v-show="field_mode || game_status.player_move" class="Battlefield">
       <b>--{{game_status.enemy_name}} --</b>
       <Battlefield
         ref="enemy"
@@ -18,6 +18,7 @@
         :net_player_shot_XY="net_player_shot_coord"
         :comp_shot_AI="comp_shot_AI"
       />
+      <button class="invisible">---</button>
     </div>
 
     <div class="Status_table">
@@ -61,7 +62,10 @@
       <button @click="name_enter">Ok</button>
     </div>
 
-    <div class="Battlefield_cpu">
+    <div
+      v-show="field_mode || game_status.computer_move || game_status.ship_placing"
+      class="Battlefield_cpu"
+    >
       <b>-- {{game_status.player_name}} --</b>
       <Battlefield
         ref="player"
@@ -130,7 +134,8 @@ export default {
       explored_cells: "",
       move_turn_comp: "move_denied",
       move_turn_pl: "move_denied",
-      sound: false
+      sound: false,
+      field_mode: true
     };
   },
   methods: {
@@ -180,29 +185,28 @@ export default {
 <style>
 .Status_table {
   font-family: CricketLight, monospace;
-  font-size: 20px;
+  font-size: 1.2em;
   color: rgba(0, 119, 255, 0.55);
   border: 2px solid #060606;
   border-radius: 10px;
   background-color: #cdfff9;
   padding: 5px;
-  height: 35%;
-  width: 13%;
+  height: fit-content;
+  width: 10%;
   margin-top: 2em;
   text-align: center;
   display: inline-table;
+  margin-left: 3%;
 }
 
 button {
   margin: 3px;
   font-family: CricketLight, monospace;
-  font-size: 20px;
   border: 2px solid #060606;
   border-radius: 10px;
 }
 b {
   font-family: CricketLight, monospace;
-  font-size: 20px;
   color: rgba(0, 119, 255, 0.55);
   border: 2px solid #060606;
   border-radius: 10px;
@@ -212,12 +216,13 @@ b {
   padding: 2px;
 }
 .Battlefield_cpu {
+  order: 1;
   display: inline-table;
   padding: 20px;
   text-align: center;
 }
 .Battlefield {
-  margin-left: 7%;
+  order: 2;
   display: inline-table;
   padding: 20px;
   text-align: center;
@@ -260,31 +265,31 @@ b {
   text-align: center;
   display: inline-table;
 }
-
-@media screen and (orientation: portrait) {
+.invisible {
+  visibility: hidden;
+}
+@media screen and (orientation: portrait) and (pointer: coarse) {
   .main_back {
     flex-direction: column;
     align-items: center;
   }
   .Status_table {
-    width: 50vw;
-    height: 10%;
+    width: 40vw;
     margin-top: 1em;
     text-align: center;
     display: inline-table;
     position: relative;
   }
-  .Battlefield {
-    margin-left: 0;
-  }
-}
 
-@media (max-width: 1030px) and (pointer: coarse) {
-  .Status_table {
-    font-size: 1em;
-  }
-  .Battlefield {
-    margin-left: 0;
-  }
+  /* html {
+    transform: rotate(-90deg);
+    transform-origin: left top;
+    width: 100vh;
+    height: 100vw;
+    overflow-x: hidden;
+    position: absolute;
+    top: 100%;
+    left: 0;
+  } */
 }
 </style>
