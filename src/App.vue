@@ -1,7 +1,7 @@
 <template>
   <div class="main_back">
-    <div v-show="field_mode || game_status.player_move" class="Battlefield">
-      <b>--{{game_status.enemy_name}} --</b>
+    <div v-show="field_mode || game_status.player_move || searching_enemy" class="Battlefield">
+      <b>--{{ game_status.enemy_name }} --</b>
       <Battlefield
         ref="enemy"
         :class="move_turn_pl"
@@ -18,7 +18,7 @@
         :net_player_shot_XY="net_player_shot_coord"
         :comp_shot_AI="comp_shot_AI"
       />
-      <button @click="$refs.player.player_shot(-1,-1)">-Random shot-</button>
+      <button @click="$refs.player.player_shot(-1, -1)">-Random shot-</button>
     </div>
 
     <div class="Status_table">
@@ -38,8 +38,7 @@
 
       <button
         v-if="game_status.ship_placing"
-        @click="$refs.status.start_game('single')
-              &$refs.enemy.ship_draw(true)"
+        @click="$refs.status.start_game('single') & $refs.enemy.ship_draw(true)"
       >Start singleplayer</button>
 
       <button
@@ -62,10 +61,17 @@
     </div>
 
     <div
-      v-show="field_mode || game_status.computer_move || game_status.ship_placing || game_status.name_enter || game_status.enemy_move || game_status.win"
+      v-show="
+        field_mode ||
+          game_status.computer_move ||
+          game_status.ship_placing ||
+          game_status.name_enter ||
+          game_status.enemy_move ||
+          game_status.win
+      "
       class="Battlefield_cpu"
     >
-      <b>-- {{game_status.player_name}} --</b>
+      <b>-- {{ game_status.player_name }} --</b>
       <Battlefield
         ref="player"
         :class="move_turn_comp"
@@ -135,6 +141,14 @@ export default {
       sound: false,
       field_mode: true
     };
+  },
+  computed: {
+    searching_enemy() {
+      return (
+        this.game_status.multi_player_mode &&
+        this.send_data.status === ("start" || "wait")
+      );
+    }
   },
   methods: {
     player_shot_coordinates: function(event) {

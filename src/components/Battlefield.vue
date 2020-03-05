@@ -774,15 +774,18 @@ export default {
           y_1 = reply.y_1;
 
         if (reply.reply === "hit") {
+          this.playSound("weapons/howitzer_cannon_fire.ogg", 1200);
           cell.hit = true;
           cell.ship = false;
           cell.invisible = false;
           this.$emit("message", "Hit!");
         } else if (reply.reply === "miss") {
+          this.playSound("sports/ping_pong_ball_hit.ogg", 700);
           cell.disabled = false;
           cell.miss = true;
           this.$emit("message", "Miss...");
         } else if (reply.loss && reply.reply === "loss") {
+          this.playSound("weapons/big_explosion_cut_off.ogg", 1800);
           cell.hit = true;
           cell.ship = false;
           cell.invisible = false;

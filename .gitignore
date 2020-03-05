@@ -19,3 +19,10 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+public/index.html
+public/css/app.5fed1581.css
+public/img/Background.e32a2f32.png
+public/js/app.0de31d89.js
+public/js/app.0de31d89.js.map
+public/js/chunk-vendors.37971b42.js
+public/js/chunk-vendors.37971b42.js.map
