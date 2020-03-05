@@ -1,159 +1,297 @@
 <template>
-  <div  class="background">
-
-    <div class="Battlefield">
-     <b>--Compukter --</b>  <Battlefield ref="battle"
-                                         @comp_shot_coordinates="comp_shot_coordinates"
-                                         @mouse_shot_coordinates="player_shot_coordinates($event)"
-                                         @message="message_emit($event)"
-                                         @shot_cpu="$refs.battle.comp_shot()"
-                                         :context="game_condition()"
-                                         :player_shot_XY="player_shot_coord"
-                                         :explored_cells_prop="explored_cells"
-                                         :comp_shot_AI="comp_shot_AI"/>
+  <div class="main_back">
+    <div
+      v-show="field_mode || game_status.player_move || game_status.enemy_move"
+      class="Battlefield"
+    >
+      <b>--{{game_status.enemy_name}} --</b>
+      <Battlefield
+        ref="enemy"
+        :class="move_turn_pl"
+        @comp_shot_coordinates="comp_shot_coordinates"
+        @mouse_shot_coordinates="player_shot_coordinates($event)"
+        @message="message_emit($event)"
+        @shot_cpu="$refs.enemy.comp_shot()"
+        @move_turn_pl="move_turn_pl_emit($event)"
+        @move_turn_comp="move_turn_comp_emit($event)"
+        :context="game_condition()"
+        :reply_from_enemy="reply_from_enemy"
+        :player_shot_XY="player_shot_coord"
+        :explored_cells_prop="explored_cells"
+        :net_player_shot_XY="net_player_shot_coord"
+        :comp_shot_AI="comp_shot_AI"
+      />
+      <button @click="$refs.player.player_shot(-1,-1)">-Random shot-</button>
     </div>
-    <div class="Status_table" > <Status_table ref="status" :context="game_condition()"
-                                              :message="message"
-                                              @message="message_emit($event)"
-                                              @shot_cpu="$refs.battle. comp_random_shot(-1, -1)"
-                                              @comp_shot_AI="comp_shot_AI_emit($event)"
-                                              :ship_field_player="ship_field_player"/>
-      <button v-if="game_status.ship_placing" @click="$refs.battle.ship_draw(true) &
-                                                      $refs.status.start_game()">
-                                                      Start game </button>
-      <button v-if="game_status.ship_placing" @click="$refs.battle_cpu.ship_draw(false)">Random</button>
+
+    <div class="Status_table">
+      <Status_table
+        ref="status"
+        :context="game_condition()"
+        :message="message"
+        @message="message_emit($event)"
+        @shot_cpu="$refs.enemy.comp_random_shot(-1, -1)"
+        @comp_shot_AI="comp_shot_AI_emit($event)"
+        @move_turn_pl="move_turn_pl_emit($event)"
+        @move_turn_comp="move_turn_comp_emit($event)"
+        :ship_field_player="ship_field_player"
+        :mute="sound"
+      />
+      <button v-if="game_status.ship_placing" @click="$refs.player.ship_draw(false)">Random placing</button>
+
+      <button
+        v-if="game_status.ship_placing"
+        @click="$refs.status.start_game('single')
+              &$refs.enemy.ship_draw(true)"
+      >Start singleplayer</button>
+
+      <button
+        v-if="game_status.ship_placing"
+        @click="$refs.status.start_game('multi')"
+      >Start multiplayer</button>
     </div>
-    <div class="Battlefield_cpu">
-      <b>--  Player 1 --</b> <Battlefield ref="battle_cpu"
-                                          @player_shot_coordinates="player_shot_coordinates($event)"
-                                          @ship_field="ship_field($event)"
-                                          @message="message_emit($event)"
-                                          @comp_shot_AI="comp_shot_AI_emit($event)"
-                                          @shot_cpu="$refs.battle.comp_shot()"
-                                          @explored_cells="explored_cells_emit($event)"
-                                          :context="game_condition()"
-                                          :comp_shot_XY="comp_shot_coord"/>
-      <button @click="$refs.battle_cpu.player_shot(-1,-1)" >-Random shot-</button>
 
+    <div class="name" v-if="game_status.name_enter">
+      <label for="textarea">Enter your name</label>
+      <textarea
+        autofocus
+        id="textarea"
+        @keyup.prevent.enter="name_enter"
+        cols="20"
+        rows="1"
+        v-model="game_status.player_name"
+      ></textarea>
+      <button @click="name_enter">Ok</button>
+    </div>
 
-  </div>
-
+    <div
+      v-show="field_mode || game_status.computer_move || game_status.ship_placing || game_status.name_enter || game_status.win"
+      class="Battlefield_cpu"
+    >
+      <b>-- {{game_status.player_name}} --</b>
+      <Battlefield
+        ref="player"
+        :class="move_turn_comp"
+        @player_shot_coordinates="player_shot_coordinates($event)"
+        @ship_field="ship_field($event)"
+        @message="message_emit($event)"
+        @comp_shot_AI="comp_shot_AI_emit($event)"
+        @shot_cpu="$refs.enemy.comp_shot()"
+        @explored_cells="explored_cells_emit($event)"
+        @move_turn_pl="move_turn_pl_emit($event)"
+        @move_turn_comp="move_turn_comp_emit($event)"
+        @reply="enemy_reply($event)"
+        :context="game_condition()"
+        :comp_shot_XY="comp_shot_coord"
+      />
+      <button class="invisible">---</button>
+    </div>
   </div>
 </template>
 
 <script>
-import Vue from 'vue'
-import Battlefield from './components/Battlefield.vue'
-import Game_status from './components/mixins/Game_status.js'
-import Status_table from './components/Status_table.vue'
-import VueLogger from 'vuejs-logger';
+import Vue from "vue";
+import Battlefield from "./components/Battlefield.vue";
+import Game_status from "./components/mixins/Game_status.js";
+import Status_table from "./components/Status_table.vue";
+import MultiPlayer from "./components/mixins/Multiplayer.js";
+import VueLogger from "vuejs-logger";
 
-
-const options = {
+const logger_options = {
   isEnabled: true,
-  logLevel : 'debug',
-  stringifyArguments : false,
-  showLogLevel : false,
-  showMethodName : false,
-  separator: '|',
+  logLevel: "debug",
+  stringifyArguments: false,
+  showLogLevel: false,
+  showMethodName: false,
+  separator: "|",
   showConsoleColors: true
 };
 
-Vue.use(VueLogger, options);
+Vue.use(VueLogger, logger_options);
 
 export default {
   components: {
     Battlefield,
     Status_table
   },
-  mixins:[Game_status],
-  data: function(){
+  mixins: [Game_status, MultiPlayer],
+  data() {
     return {
-      player_shot_coord:"",
-      comp_shot_coord:"",
-      message:"",
-      ship_field_player:"",
-      comp_shot_AI:"",
-      explored_cells:""
-    }
+      player_shot_coord: { x: -1, y: -1 },
+      net_player_shot_coord: { x: -1, y: -1 },
+      comp_shot_coord: { x: -1, y: -1 },
+      message: "....",
+      ship_field_player: "",
+      comp_shot_AI: "",
+      reply_to_enemy: {
+        reply: "",
+        loss: false,
+        size: -1,
+        orient: -1,
+        x: -1,
+        y: -1
+      },
+      reply_from_enemy: "",
+      explored_cells: "",
+      move_turn_comp: "move_denied",
+      move_turn_pl: "move_denied",
+      sound: false,
+      field_mode: true
+    };
   },
   methods: {
-    player_shot_coordinates: function (event) {
-      this.player_shot_coord = event
+    player_shot_coordinates: function(event) {
+      return this.game_status.single_player_mode
+        ? (this.player_shot_coord = event)
+        : (this.net_player_shot_coord = event);
     },
-    comp_shot_coordinates: function (event) {
-      this.comp_shot_coord = event
+    comp_shot_coordinates: function(event) {
+      this.comp_shot_coord = event;
     },
     game_condition() {
-      return this
+      return this;
     },
     message_emit(event) {
-      this.message = event
-      setTimeout( ()=>{ this.message = " " },1000)
+      this.message = event;
+      setTimeout(() => {
+        this.message = "....";
+      }, 1000);
     },
-    ship_field(event){
-      this.ship_field_player = event
+    ship_field(event) {
+      this.ship_field_player = event;
     },
-    comp_shot_AI_emit(event){
-      this.comp_shot_AI = event
+    comp_shot_AI_emit(event) {
+      this.comp_shot_AI = event;
     },
-    explored_cells_emit(event){
-      this.explored_cells = event
-
+    explored_cells_emit(event) {
+      this.explored_cells = event;
+    },
+    move_turn_comp_emit(event) {
+      this.move_turn_comp = event;
+    },
+    move_turn_pl_emit(event) {
+      this.move_turn_pl = event;
+    },
+    name_enter() {
+      this.game_status.name_enter = false;
+      this.game_status.ship_placing = true;
+    },
+    enemy_reply(event) {
+      this.reply_to_enemy = event;
     }
-
-
   }
-}
+};
 </script>
 
 <style>
+.Status_table {
+  font-family: CricketLight, monospace;
+  font-size: 1.2em;
+  color: rgba(0, 119, 255, 0.55);
+  border: 2px solid #060606;
+  border-radius: 10px;
+  background-color: #cdfff9;
+  padding: 5px;
+  height: fit-content;
+  width: 10%;
+  margin-top: 2em;
+  text-align: center;
+  display: inline-table;
+  margin-left: 3%;
+}
+
+button {
+  margin: 3px;
+  font-family: CricketLight, monospace;
+  border: 2px solid #060606;
+  border-radius: 10px;
+  outline: none;
+}
+b {
+  font-family: CricketLight, monospace;
+  color: rgba(0, 119, 255, 0.55);
+  border: 2px solid #060606;
+  border-radius: 10px;
+  display: inline-table;
+  margin-bottom: 10px;
+  background-color: #cdfff9;
+  padding: 2px;
+}
+.Battlefield_cpu {
+  order: 1;
+  display: inline-table;
+  padding: 20px;
+  text-align: center;
+}
+.Battlefield {
+  order: 2;
+  display: inline-table;
+  padding: 20px;
+  text-align: center;
+}
+body {
+  background: url("assets/Background.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center, center;
+  width: 100vw;
+  height: -webkit-fill-available;
+  position: absolute;
+  top: 0%;
+  left: 0%;
+}
+.main_back {
+  display: inline-flex;
+  width: inherit;
+  height: inherit;
+  position: inherit;
+  top: 0%;
+  left: 0%;
+}
+.move_allow {
+  border: solid 10px rgba(28, 222, 114, 0.7);
+  border-radius: 2%;
+}
+.move_denied {
+  border: solid 10px rgb(133, 134, 133);
+  border-radius: 2%;
+}
+.name {
+  position: absolute;
+  z-index: 1000;
+  top: 40%;
+  left: 40%;
+  color: rgba(0, 119, 255, 0.55);
+  border: 2px solid #060606;
+  border-radius: 10px;
+  background-color: #cdfff9;
+  padding: 5px;
+  height: fit-content;
+  width: 10em;
+  text-align: center;
+  display: inline-table;
+}
+.invisible {
+  visibility: hidden;
+}
+@media screen and (orientation: portrait) and (pointer: coarse) {
+  .name {
+    position: absolute;
+    z-index: 1000;
+    top: 37%;
+    left: 30%;
+  }
+  .main_back {
+    flex-direction: column;
+    align-items: center;
+  }
   .Status_table {
-    font-family: CricketLight, monospace;
-    font-size: 20px;
-    color: #fff602;
-    border: solid #060606;
-    background-color: darkcyan;
-    padding: 5px;
-    height: 100px;
-    width: 200px;
+    width: 40vw;
+    margin-top: 1em;
     text-align: center;
     display: inline-table;
+    position: relative;
   }
-
-  button {
-    margin: 3px;
-    font-family: CricketLight,monospace;
-    font-size:20px;
-    border: #060606 solid;
-  }
-  b {
-    font-family: CricketLight,monospace;
-   font-size:20px;
-    color: #fff602;
-    border: solid #060606;
-    display: inline-table;
-    margin-bottom: 10px;
-    background-color: darkcyan;
-    padding: 2px;
-  }
-  .Battlefield_cpu {
-    margin-left: 10px;
-    display: inline-table;
-    padding: 20px;
-    text-align: center;
-  }
-  .Battlefield {
-    margin-left: 50px;
-    display: inline-table;
-    padding: 20px;
-    text-align: center;
-  }
-  .background {
-    min-width: 1470px;
-    min-height: 700px;
-    background-image: url('images/Background.jpg');
-    background-size:cover;
-  }
-
+}
 </style>
