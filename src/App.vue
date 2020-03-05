@@ -1,6 +1,9 @@
 <template>
   <div class="main_back">
-    <div v-show="field_mode || game_status.player_move" class="Battlefield">
+    <div
+      v-show="field_mode || game_status.player_move || game_status.enemy_move"
+      class="Battlefield"
+    >
       <b>--{{game_status.enemy_name}} --</b>
       <Battlefield
         ref="enemy"
@@ -18,7 +21,7 @@
         :net_player_shot_XY="net_player_shot_coord"
         :comp_shot_AI="comp_shot_AI"
       />
-      <button class="invisible">---</button>
+      <button @click="$refs.player.player_shot(-1,-1)">-Random shot-</button>
     </div>
 
     <div class="Status_table">
@@ -34,7 +37,6 @@
         :ship_field_player="ship_field_player"
         :mute="sound"
       />
-
       <button v-if="game_status.ship_placing" @click="$refs.player.ship_draw(false)">Random placing</button>
 
       <button
@@ -63,7 +65,7 @@
     </div>
 
     <div
-      v-show="field_mode || game_status.computer_move || game_status.ship_placing"
+      v-show="field_mode || game_status.computer_move || game_status.ship_placing || game_status.name_enter || game_status.win"
       class="Battlefield_cpu"
     >
       <b>-- {{game_status.player_name}} --</b>
@@ -82,8 +84,7 @@
         :context="game_condition()"
         :comp_shot_XY="comp_shot_coord"
       />
-
-      <button @click="$refs.player.player_shot(-1,-1)">-Random shot-</button>
+      <button class="invisible">---</button>
     </div>
   </div>
 </template>
@@ -204,6 +205,7 @@ button {
   font-family: CricketLight, monospace;
   border: 2px solid #060606;
   border-radius: 10px;
+  outline: none;
 }
 b {
   font-family: CricketLight, monospace;
@@ -227,16 +229,23 @@ b {
   padding: 20px;
   text-align: center;
 }
-.main_back {
+body {
   background: url("assets/Background.png");
   background-size: cover;
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-position: center, center;
-  display: inline-flex;
   width: 100vw;
   height: -webkit-fill-available;
   position: absolute;
+  top: 0%;
+  left: 0%;
+}
+.main_back {
+  display: inline-flex;
+  width: inherit;
+  height: inherit;
+  position: inherit;
   top: 0%;
   left: 0%;
 }
@@ -252,16 +261,14 @@ b {
   position: absolute;
   z-index: 1000;
   top: 40%;
-  right: 45%;
-  font-family: CricketLight, monospace;
-  font-size: 20px;
+  left: 40%;
   color: rgba(0, 119, 255, 0.55);
   border: 2px solid #060606;
   border-radius: 10px;
   background-color: #cdfff9;
   padding: 5px;
-  height: 100px;
-  width: 200px;
+  height: fit-content;
+  width: 10em;
   text-align: center;
   display: inline-table;
 }
@@ -269,6 +276,12 @@ b {
   visibility: hidden;
 }
 @media screen and (orientation: portrait) and (pointer: coarse) {
+  .name {
+    position: absolute;
+    z-index: 1000;
+    top: 37%;
+    left: 30%;
+  }
   .main_back {
     flex-direction: column;
     align-items: center;
@@ -280,16 +293,5 @@ b {
     display: inline-table;
     position: relative;
   }
-
-  /* html {
-    transform: rotate(-90deg);
-    transform-origin: left top;
-    width: 100vh;
-    height: 100vw;
-    overflow-x: hidden;
-    position: absolute;
-    top: 100%;
-    left: 0;
-  } */
 }
 </style>

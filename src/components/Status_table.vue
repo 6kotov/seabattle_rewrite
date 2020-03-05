@@ -1,7 +1,12 @@
 <template>
   <div class="status">
     <div v-if="context.game_status.win">{{context.game_status.winner}}</div>
-    <div v-if="context.game_status.ship_placing">Ship placing</div>
+    <div v-if="context.game_status.ship_placing">
+      Ship placing
+      <br />
+      {{message}}
+      <br />
+    </div>
     <div v-else-if="context.game_status.player_move">{{context.game_status.player_name}} move</div>
     <div
       v-else-if="context.game_status.enemy_move && !context.game_status.win"

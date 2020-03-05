@@ -561,9 +561,6 @@ export default {
     }
   },
   watch: {
-    client_rect() {
-      this.$log.debug(this.client_rect);
-    },
     explored_cells_prop: function() {
       let exp_cell = this.explored_cells_prop;
       for (let i = 0; i < exp_cell.length; i++) {
@@ -740,15 +737,16 @@ export default {
               } else {
                 this.reply.reply = "hit";
                 this.$emit("reply", this.reply);
+                this.playSound("weapons/howitzer_cannon_fire.ogg", 1200);
               }
             }
           }
         } else {
           cell.disabled = false;
           cell.miss = true;
+          this.playSound("sports/ping_pong_ball_hit.ogg", 700);
 
           if (single_mode) {
-            this.playSound("sports/ping_pong_ball_hit.ogg", 700);
             this.$emit("message", "Miss...");
             this.$emit("comp_shot_AI", { loss: this.loss, hit: false });
             setTimeout(() => {
