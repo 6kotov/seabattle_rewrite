@@ -1,9 +1,6 @@
 <template>
   <div class="main_back">
-    <div
-      v-show="field_mode || game_status.player_move || game_status.enemy_move"
-      class="Battlefield"
-    >
+    <div v-show="field_mode || game_status.player_move" class="Battlefield">
       <b>--{{game_status.enemy_name}} --</b>
       <Battlefield
         ref="enemy"
@@ -65,7 +62,7 @@
     </div>
 
     <div
-      v-show="field_mode || game_status.computer_move || game_status.ship_placing || game_status.name_enter || game_status.win"
+      v-show="field_mode || game_status.computer_move || game_status.ship_placing || game_status.name_enter || game_status.enemy_move || game_status.win"
       class="Battlefield_cpu"
     >
       <b>-- {{game_status.player_name}} --</b>
